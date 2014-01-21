@@ -1,3 +1,5 @@
+task :default => [:test]
+
 task :build do
   puts `go build`
 end
@@ -9,5 +11,3 @@ end
 task :test do
   puts `go test */*.go`
 end
-
-task :default => [:test]
