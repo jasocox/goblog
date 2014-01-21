@@ -1,2 +1,8 @@
-todo.txt
+# Editor files
 .*.swp
+
+# Project management files
+todo.txt
+
+# Build files
+goblog
