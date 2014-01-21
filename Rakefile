@@ -1,13 +1,13 @@
 task :build do
-  `go build`
+  puts `go build`
 end
 
 task :install do
-  `go install`
+  puts `go install`
 end
 
 task :test do
-  `go test`
+  puts `go test */*.go`
 end
 
 task :default => [:test]

@@ -1,8 +1,5 @@
 guard 'shell' do
-  watch(/(.*)_test.go/) {|m|
-    `go test #{m}`
-  }
-  watch(/(.*).go/) {
+  watch(/(\.*)\.go$/) do
     `rake`
-  }
+  end
 end
