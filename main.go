@@ -2,15 +2,21 @@ package main
 
 import (
   "fmt"
+  "html"
   "net/http"
+  l4g "code.google.com/p/log4go"
 )
 
-func main() {
-  fmt.Println("Starting")
+func HandleRoot(w http.ResponseWriter, r *http.Request) {
+  l4g.Trace("Handling request for %s", html.EscapeString(r.URL.Path))
 
-  http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintln(w, "Blogs")
-  })
+  fmt.Fprintln(w, "Blogs")
+}
+
+func main() {
+  l4g.Trace("Starting")
+
+  http.HandleFunc("/", HandleRoot)
 
   err := http.ListenAndServe(":2001", nil)
   if err != nil {
@@ -18,5 +24,5 @@ func main() {
     fmt.Println(err.Error())
   }
 
-  fmt.Println("Stopping")
+  l4g.Trace("Stopping")
 }
