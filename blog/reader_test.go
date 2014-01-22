@@ -57,3 +57,36 @@ func Test_MakeBlogWithParsedStrings(t *testing.T) {
 		return
 	}
 }
+
+func Test_BlogRequiresTitle(t *testing.T) {
+	parsed := []string{"Intro", "The Intro", "Subsection", "Sub Title 1", "Sub Text 1", "Subsection", "Sub Title 2", "Sub Text 2", "Outro", "The Outro", "Tag", "Tag 1", "Tag", "Tag 2"}
+
+	_, err := NewBlog(parsed)
+
+	if err == nil {
+		t.Error("Expected error")
+		return
+	}
+}
+
+func Test_BlogRequiresIntro(t *testing.T) {
+	parsed := []string{"Title", "The Title", "Subsection", "Sub Title 1", "Sub Text 1", "Subsection", "Sub Title 2", "Sub Text 2", "Outro", "The Outro", "Tag", "Tag 1", "Tag", "Tag 2"}
+
+	_, err := NewBlog(parsed)
+
+	if err == nil {
+		t.Error("Expected error")
+		return
+	}
+}
+
+func Test_BlogRequiresTag(t *testing.T) {
+	parsed := []string{"Title", "The Title", "Intro", "The Intro", "Subsection", "Sub Title 1", "Sub Text 1", "Subsection", "Sub Title 2", "Sub Text 2", "Outro", "The Outro"}
+
+	_, err := NewBlog(parsed)
+
+	if err == nil {
+		t.Error("Expected error")
+		return
+	}
+}

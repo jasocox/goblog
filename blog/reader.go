@@ -36,5 +36,9 @@ func NewBlog(parsed []string) (Blog, error) {
 		i++
 	}
 
+	if title == "" || intro == "" || len(tags) == 0 {
+		return Blog{}, InvalidBlog
+	}
+
 	return Blog{title, time.Now(), intro, subsections, outro, tags}, nil
 }
