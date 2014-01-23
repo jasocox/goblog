@@ -2,10 +2,6 @@ Title
 
 The Title
 -----
-Intro
-
-The Intro
------
 Outro
 
 The Outro
@@ -19,9 +15,9 @@ Tag
 Tag 2
 -----
 Subsection
-Sub Title 1
-Sub Text 1
+Sub Title
+Sub Text
 -----
 Subsection
-Sub Title 2
-Sub Text 2
+Sub Title
+Sub Text

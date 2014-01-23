@@ -2,13 +2,11 @@ package blog
 
 import "testing"
 
-func Test_MakeBlogWithParsedStrings(t *testing.T) {
-	parsed := []string{"Title", "The Title", "Intro", "The Intro", "Subsection", "Sub Title 1", "Sub Text 1", "Subsection", "Sub Title 2", "Sub Text 2", "Outro", "The Outro", "Tag", "Tag 1", "Tag", "Tag 2"}
-
-	blog, err := NewBlog(parsed)
+func Test_MakeBlogWithFile(t *testing.T) {
+	blog, err := NewBlogFromFile("example.txt")
 
 	if err != nil {
-		t.Error("Unexpected error parsing the blog strings:", err.Error())
+		t.Error("Unexpected error parsing the blog file:", err.Error())
 		return
 	}
 
@@ -23,7 +21,7 @@ func Test_MakeBlogWithParsedStrings(t *testing.T) {
 	}
 
 	if !(blog.Subsections[0].Header == "Sub Title 1") {
-		t.Error("Did not set the proper subtitle")
+		t.Error("Did not set the proper subtitle", blog.Subsections[0].Header)
 		return
 	}
 
@@ -59,34 +57,43 @@ func Test_MakeBlogWithParsedStrings(t *testing.T) {
 }
 
 func Test_BlogRequiresTitle(t *testing.T) {
-	parsed := []string{"Intro", "The Intro", "Subsection", "Sub Title 1", "Sub Text 1", "Subsection", "Sub Title 2", "Sub Text 2", "Outro", "The Outro", "Tag", "Tag 1", "Tag", "Tag 2"}
-
-	_, err := NewBlog(parsed)
+	_, err := NewBlogFromFile("missing_title.txt")
 
 	if err == nil {
 		t.Error("Expected error")
+		return
+	}
+
+	if !(err.Error() == "Missing Section: Title") {
+		t.Error("Did not get the correct error")
 		return
 	}
 }
 
 func Test_BlogRequiresIntro(t *testing.T) {
-	parsed := []string{"Title", "The Title", "Subsection", "Sub Title 1", "Sub Text 1", "Subsection", "Sub Title 2", "Sub Text 2", "Outro", "The Outro", "Tag", "Tag 1", "Tag", "Tag 2"}
-
-	_, err := NewBlog(parsed)
+	_, err := NewBlogFromFile("missing_intro.txt")
 
 	if err == nil {
 		t.Error("Expected error")
 		return
 	}
+
+	if !(err.Error() == "Missing Section: Intro") {
+		t.Error("Did not get the correct error")
+		return
+	}
 }
 
 func Test_BlogRequiresTag(t *testing.T) {
-	parsed := []string{"Title", "The Title", "Intro", "The Intro", "Subsection", "Sub Title 1", "Sub Text 1", "Subsection", "Sub Title 2", "Sub Text 2", "Outro", "The Outro"}
-
-	_, err := NewBlog(parsed)
+	_, err := NewBlogFromFile("missing_tag.txt")
 
 	if err == nil {
 		t.Error("Expected error")
+		return
+	}
+
+	if !(err.Error() == "Missing Section: Tags") {
+		t.Error("Did not get the correct error")
 		return
 	}
 }

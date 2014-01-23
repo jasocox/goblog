@@ -10,18 +10,10 @@ Outro
 
 The Outro
 -----
-Tag
-
-Tag 1
------
-Tag
-
-Tag 2
+Subsection
+Sub Title
+Sub Text
 -----
 Subsection
-Sub Title 1
-Sub Text 1
------
-Subsection
-Sub Title 2
-Sub Text 2
+Sub Title
+Sub Text

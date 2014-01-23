@@ -1,44 +1,144 @@
 package blog
 
 import (
+	"bufio"
+	l4g "code.google.com/p/log4go"
 	"errors"
-	"time"
+	"fmt"
+	"os"
 )
 
-var InvalidBlog = errors.New("Invalid blog")
+var (
+	InvalidSection    = errors.New("Invalid Section")
+	AlreadySetSection = errors.New("Already Set Section")
+	InvalidStructure  = errors.New("Invalid Structure")
+)
 
-func NewBlog(parsed []string) (Blog, error) {
+var log l4g.Logger
+
+func init() {
+	log = l4g.NewDefaultLogger(l4g.WARNING)
+}
+
+func MissingSection(s string) error {
+	return errors.New(fmt.Sprintf("Missing Section: %s", s))
+}
+
+const BLOG_FILE_DELIM string = "-----"
+
+func NewBlogFromFile(filename string) (blog *Blog, err error) {
 	var (
-		title       string
-		intro       string
-		outro       string
-		subsections = make([]Subsection, 0)
-		tags        = make([]Tag, 0)
+		section           string
+		subsection_header string
+		body              string
+		line_num          int
 	)
 
-	for i := 0; i < len(parsed); i++ {
-		switch parsed[i] {
-		case TITLE:
-			title = parsed[i+1]
-		case INTRO:
-			intro = parsed[i+1]
-		case OUTRO:
-			outro = parsed[i+1]
-		case TAG:
-			tags = append(tags, Tag{parsed[i+1]})
-		case SUBSECTION:
-			subsections = append(subsections, Subsection{parsed[i+1], parsed[i+2]})
-			i++
-		default:
-			return Blog{}, InvalidBlog
+	if _, err = os.Stat(filename); os.IsNotExist(err) {
+		log.Error("Error finding blog file: %s", err.Error())
+		return nil, err
+	}
+
+	file, err := os.Open(filename)
+	defer file.Close()
+
+	if err != nil {
+		log.Error("Error reading blog file: %s", err.Error())
+		return nil, err
+	}
+
+	blog = new(Blog)
+	scanner := bufio.NewScanner(file)
+	for line_num = 1; scanner.Scan(); line_num++ {
+		line := scanner.Text()
+
+		if line == "" {
+			continue
+		}
+		log.Trace("Line %d: %s", line_num, line)
+
+		if section == "" && IsSection(line) {
+			log.Trace("Setting the section to: %s", line)
+			section = line
+		} else if section == "" {
+			err = InvalidSection
+			break
+		} else if line == BLOG_FILE_DELIM {
+			log.Trace("Done parsing section: section=%s body=%s subsection_header=%s", section, body, subsection_header)
+			err = addSection(blog, section, body, subsection_header)
+
+			section = ""
+			body = ""
+			subsection_header = ""
+
+			if err != nil {
+				break
+			}
+		} else {
+			if section == SUBSECTION && subsection_header == "" {
+				subsection_header = line
+			} else {
+				body = line
+			}
+		}
+	}
+
+	if !(section == "") && err == nil {
+		err = addSection(blog, section, body, subsection_header)
+	}
+
+	if err != nil {
+		log.Error("Problems reading blog on line %d: %s", line_num, err.Error())
+		return
+	}
+
+	err = scanner.Err()
+
+	if blog.Title == "" {
+		return nil, MissingSection("Title")
+	} else if blog.Intro == "" {
+		return nil, MissingSection("Intro")
+	} else if len(blog.Tags) == 0 {
+		return nil, MissingSection("Tags")
+	}
+
+	return
+}
+
+func addSection(blog *Blog, section string, text string, header string) error {
+	if text == "" {
+		return InvalidStructure
+	}
+
+	log.Trace("Add section: %s %s %s", section, text, header)
+	switch section {
+	case TITLE:
+		if !(blog.Title == "") {
+			return AlreadySetSection
 		}
 
-		i++
+		blog.Title = text
+	case INTRO:
+		if !(blog.Intro == "") {
+			return AlreadySetSection
+		}
+
+		blog.Intro = text
+	case OUTRO:
+		if !(blog.Outro == "") {
+			return AlreadySetSection
+		}
+
+		blog.Outro = text
+	case TAG:
+		blog.Tags = append(blog.Tags, Tag{text})
+	case SUBSECTION:
+		if header == "" {
+			return InvalidStructure
+		}
+
+		blog.Subsections = append(blog.Subsections, Subsection{header, text})
 	}
 
-	if title == "" || intro == "" || len(tags) == 0 {
-		return Blog{}, InvalidBlog
-	}
-
-	return Blog{title, time.Now(), intro, subsections, outro, tags}, nil
+	return nil
 }
