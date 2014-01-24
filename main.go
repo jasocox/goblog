@@ -4,6 +4,7 @@ import (
 	l4g "code.google.com/p/log4go"
 	"flag"
 	"fmt"
+	"github.com/jasocox/goblog/blog"
 	"html"
 	"net/http"
 )
@@ -25,9 +26,14 @@ func main() {
 		l4g.Error("Must specify a directory where blogs are stored")
 	}
 
+	_, err := blog.New(*blog_dir)
+	if err != nil {
+		l4g.Error("Error creating blog reader: %s", err)
+	}
+
 	http.HandleFunc("/", HandleRoot)
 
-	err := http.ListenAndServe(":2001", nil)
+	err = http.ListenAndServe(":2001", nil)
 	if err != nil {
 		l4g.Error("Problem with http server: %s", err)
 	}

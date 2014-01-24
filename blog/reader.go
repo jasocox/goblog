@@ -9,6 +9,7 @@ import (
 )
 
 var (
+	NotDirectory      = errors.New("Not a Directory")
 	InvalidSection    = errors.New("Invalid Section")
 	AlreadySetSection = errors.New("Already Set Section")
 	InvalidStructure  = errors.New("Invalid Structure")
@@ -24,7 +25,32 @@ func MissingSection(s string) error {
 	return errors.New(fmt.Sprintf("Missing Section: %s", s))
 }
 
+type BlogReader struct {
+	blogs    []Blog
+	blog_dir string
+}
+
 const BLOG_FILE_DELIM string = "-----"
+
+func New(blog_dir string) (reader BlogReader, err error) {
+	reader.blogs = make([]Blog, 0)
+	reader.blog_dir = blog_dir
+
+	stat, err := os.Stat(blog_dir)
+
+	if os.IsNotExist(err) {
+		l4g.Error("Specified blog directory does not exist: %s", blog_dir)
+		return
+	}
+
+	if !stat.IsDir() {
+		err = NotDirectory
+		l4g.Error("Specified blog location is not a directory: %s", blog_dir)
+		return
+	}
+
+	return
+}
 
 func NewBlogFromFile(filename string) (blog *Blog, err error) {
 	var (
