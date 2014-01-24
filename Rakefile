@@ -1,4 +1,4 @@
-task :default => [:test]
+task :default => [:test, :build]
 
 task :build do
   puts `go build`
