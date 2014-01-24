@@ -49,6 +49,22 @@ func New(blog_dir string) (reader BlogReader, err error) {
 		return
 	}
 
+	file, err := os.Open(blog_dir)
+	if err != nil {
+		l4g.Error("Error reading the blog directory: %s", err.Error())
+		return
+	}
+
+	file_list, err := file.Readdirnames(0)
+	if err != nil {
+		l4g.Error("Error getting list of file names in the blog directory: %s", err.Error())
+		return
+	}
+
+	for _, filename := range file_list {
+		fmt.Println(blog_dir + "/" + filename)
+	}
+
 	return
 }
 
