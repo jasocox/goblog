@@ -4,7 +4,7 @@ import (
 	l4g "code.google.com/p/log4go"
 	"flag"
 	"fmt"
-	"github.com/jasocox/goblog/blog"
+	"github.com/jasocox/goblog/reader"
 	"html"
 	"net/http"
 )
@@ -26,7 +26,7 @@ func main() {
 		l4g.Error("Must specify a directory where blogs are stored")
 	}
 
-	_, err := blog.New(*blog_dir)
+	_, err := reader.New(*blog_dir)
 	if err != nil {
 		l4g.Error("Error creating blog reader: %s", err)
 	}
