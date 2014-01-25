@@ -26,46 +26,65 @@ func MissingSection(s string) error {
 }
 
 type BlogReader struct {
-	blogs    []Blog
+	blogs    []*Blog
 	blog_dir string
 }
 
 const BLOG_FILE_DELIM string = "-----"
 
-func New(blog_dir string) (reader BlogReader, err error) {
-	reader.blogs = make([]Blog, 0)
+func New(blog_dir string) (reader BlogReader) {
+	reader.blogs = make([]*Blog, 0)
 	reader.blog_dir = blog_dir
 
-	stat, err := os.Stat(blog_dir)
+	return
+}
+
+func (r BlogReader) ReadBlogs() error {
+	stat, err := os.Stat(r.blog_dir)
 
 	if os.IsNotExist(err) {
-		l4g.Error("Specified blog directory does not exist: %s", blog_dir)
-		return
+		log.Error("Specified blog directory does not exist: %s", r.blog_dir)
+		return err
 	}
 
 	if !stat.IsDir() {
 		err = NotDirectory
-		l4g.Error("Specified blog location is not a directory: %s", blog_dir)
-		return
+		log.Error("Specified blog location is not a directory: %s", r.blog_dir)
+		return err
 	}
 
-	file, err := os.Open(blog_dir)
+	file, err := os.Open(r.blog_dir)
 	if err != nil {
-		l4g.Error("Error reading the blog directory: %s", err.Error())
-		return
+		log.Error("Error reading the blog directory: %s", err.Error())
+		return err
 	}
 
 	file_list, err := file.Readdirnames(0)
 	if err != nil {
-		l4g.Error("Error getting list of file names in the blog directory: %s", err.Error())
-		return
+		log.Error("Error getting list of file names in the blog directory: %s", err.Error())
+		return err
 	}
 
 	for _, filename := range file_list {
-		fmt.Println(blog_dir + "/" + filename)
+		var (
+			blog     *Blog
+			errr     error
+			filepath string
+		)
+
+		filepath = r.blog_dir + "/" + filename
+		log.Trace("Reading blog file: %s", filepath)
+
+		blog, errr = NewBlogFromFile(filepath)
+		if errr != nil {
+			log.Error("Problems reading a blog file: %s", errr.Error())
+			err = errr
+		} else {
+			r.blogs = append(r.blogs, blog)
+		}
 	}
 
-	return
+	return err
 }
 
 func NewBlogFromFile(filename string) (blog *Blog, err error) {
