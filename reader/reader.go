@@ -26,14 +26,14 @@ func MissingSection(s string) error {
 }
 
 type BlogReader struct {
-	blogs    []*Blog
+	blogs    map[string]*Blog
 	blog_dir string
 }
 
 const BLOG_FILE_DELIM string = "-----"
 
 func New(blog_dir string) (reader BlogReader) {
-	reader.blogs = make([]*Blog, 0)
+	reader.blogs = make(map[string]*Blog, 0)
 	reader.blog_dir = blog_dir
 
 	return
@@ -80,7 +80,7 @@ func (r BlogReader) ReadBlogs() error {
 			log.Error("Problems reading a blog file: %s", errr.Error())
 			err = errr
 		} else {
-			r.blogs = append(r.blogs, blog)
+			r.addBlog(blog)
 		}
 	}
 
@@ -202,4 +202,12 @@ func addSection(blog *Blog, section string, text string, header string) error {
 	}
 
 	return nil
+}
+
+func (reader *BlogReader) addBlog(b *Blog) {
+	reader.blogs[b.HashTitle()] = b
+}
+
+func (reader *BlogReader) GetBlog(hashed_title string) *Blog {
+	return reader.blogs[hashed_title]
 }

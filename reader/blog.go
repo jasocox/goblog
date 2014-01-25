@@ -1,6 +1,9 @@
 package reader
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 type Blog struct {
 	Title       string
@@ -28,6 +31,12 @@ const (
 	TAG        string = "Tag"
 )
 
+var replaceSpaces *strings.Replacer
+
+func init() {
+	replaceSpaces = strings.NewReplacer(" ", "_")
+}
+
 func IsSection(s string) bool {
 	switch s {
 	case TITLE:
@@ -43,4 +52,8 @@ func IsSection(s string) bool {
 	}
 
 	return false
+}
+
+func (b *Blog) HashTitle() string {
+	return replaceSpaces.Replace(strings.ToLower(strings.TrimSpace(b.Title)))
 }

@@ -97,3 +97,45 @@ func Test_BlogRequiresTag(t *testing.T) {
 		return
 	}
 }
+
+func Test_CanAddAndGetBlogs(t *testing.T) {
+	reader := New("dir")
+
+	blog1 := &Blog{Title: "Title 1"}
+	blog2 := &Blog{Title: "Title 2"}
+	blog3 := &Blog{Title: "Title 3"}
+
+	reader.addBlog(blog1)
+	reader.addBlog(blog2)
+	reader.addBlog(blog3)
+
+	if reader.GetBlog("title_1") == nil {
+		t.Error("Did not receive a blog")
+		return
+	}
+
+	if reader.GetBlog("title_2") == nil {
+		t.Error("Did not receive a blog")
+		return
+	}
+
+	if reader.GetBlog("title_3") == nil {
+		t.Error("Did not receive a blog")
+		return
+	}
+
+	if reader.GetBlog("title_1") != blog1 {
+		t.Error("Did not receive expected blog")
+		return
+	}
+
+	if reader.GetBlog("title_2") != blog2 {
+		t.Error("Did not receive expected blog")
+		return
+	}
+
+	if reader.GetBlog("title_3") != blog3 {
+		t.Error("Did not receive expected blog")
+		return
+	}
+}
