@@ -6,11 +6,15 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/jasocox/goblog/reader"
+	"github.com/jasocox/goblog/view"
 	"html"
 	"net/http"
 )
 
-var blog_dir = flag.String("b", "", "directory where blogs a stored")
+var (
+	blog_dir   = flag.String("b", "", "directory where blogs a stored")
+	blogReader reader.BlogReader
+)
 
 func RootHandler(w http.ResponseWriter, r *http.Request) {
 	l4g.Trace("Handling request for " + html.EscapeString(r.URL.Path))
@@ -27,7 +31,7 @@ func BlogListHandler(w http.ResponseWriter, r *http.Request) {
 func BlogHandler(w http.ResponseWriter, r *http.Request) {
 	l4g.Trace("Handling blog request " + html.EscapeString(r.URL.Path))
 
-	fmt.Fprintln(w, "A Blog")
+	view.Blog(w, blogReader.GetBlog(mux.Vars(r)["blog"]))
 }
 
 func main() {
@@ -40,7 +44,7 @@ func main() {
 		l4g.Error("Must specify a directory where blogs are stored")
 	}
 
-	blogReader := reader.New(*blog_dir)
+	blogReader = reader.New(*blog_dir)
 
 	err = blogReader.ReadBlogs()
 	if err != nil {
