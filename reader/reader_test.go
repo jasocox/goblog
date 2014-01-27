@@ -139,3 +139,13 @@ func Test_CanAddAndGetBlogs(t *testing.T) {
 		return
 	}
 }
+
+func Test_GetsNilIfDoesntExist(t *testing.T) {
+	reader := New("dir")
+	reader.addBlog(&Blog{Title: "dont care"})
+
+	if reader.GetBlog("title_1") != nil {
+		t.Error("Expected nil for non-existant blog")
+		return
+	}
+}
