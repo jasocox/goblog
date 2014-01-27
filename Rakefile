@@ -9,5 +9,5 @@ task :install do
 end
 
 task :test do
-  puts `go test */*.go`
+  puts `go test reader/*.go`
 end
