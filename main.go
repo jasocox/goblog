@@ -57,6 +57,7 @@ func main() {
 	router.HandleFunc("/blogs/{blog}", BlogHandler)
 
 	http.Handle("/", router)
+	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
 	err = http.ListenAndServe(":2001", nil)
 	if err != nil {
 		l4g.Error("Problem with http server: %s", err)
