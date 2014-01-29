@@ -29,20 +29,12 @@ func Blog(w http.ResponseWriter, b *reader.Blog) (err error) {
 
 	l4g.Trace("Displaying blog: " + b.Title)
 
-	l4g.Trace("Rendering the header")
-	err = renderHeader(w)
-	if err == nil {
-		l4g.Trace("Rendering the blog")
-		err = templates.ExecuteTemplate(w, blog, b)
-	}
-	if err == nil {
-		l4g.Trace("Rendering the footer")
-		err = renderFooter(w)
-	}
+  l4g.Trace("Rendering the blog")
+  err = templates.ExecuteTemplate(w, blog, b)
 
 	if err != nil {
 		l4g.Error("Problems rendering template: " + err.Error())
-		fmt.Fprintln(w, "Nope! "+err.Error())
+		fmt.Fprintln(w, "Nope! " + err.Error())
 	}
 
 	l4g.Trace("Done rendering")
