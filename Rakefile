@@ -1,7 +1,7 @@
 task :default => [:test, :build]
 
 task :build do
-  puts `go build`
+  puts `go build && echo "Build complete"`
 end
 
 task :install do
