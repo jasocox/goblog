@@ -40,11 +40,3 @@ func Blog(w http.ResponseWriter, b *reader.Blog) (err error) {
 	l4g.Trace("Done rendering")
 	return
 }
-
-func renderHeader(w http.ResponseWriter) error {
-	return templates.ExecuteTemplate(w, header, nil)
-}
-
-func renderFooter(w http.ResponseWriter) error {
-	return templates.ExecuteTemplate(w, footer, nil)
-}
