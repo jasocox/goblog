@@ -1,0 +1,4 @@
+# Routes
+
+# App
+GET     /                                       Application.Index
