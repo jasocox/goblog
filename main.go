@@ -16,12 +16,6 @@ var (
 	blogReader reader.BlogReader
 )
 
-func RootHandler(w http.ResponseWriter, r *http.Request) {
-	l4g.Trace("Handling request for " + html.EscapeString(r.URL.Path))
-
-	fmt.Fprintln(w, "Home")
-}
-
 func BlogListHandler(w http.ResponseWriter, r *http.Request) {
 	l4g.Trace("List blog request " + html.EscapeString(r.URL.Path))
 
@@ -52,7 +46,6 @@ func main() {
 	}
 
 	router := mux.NewRouter()
-	router.HandleFunc("/", RootHandler)
 	router.HandleFunc("/blogs", BlogListHandler)
 	router.HandleFunc("/blogs/{blog}", BlogHandler)
 
