@@ -12,10 +12,12 @@ var (
 	views     = "view/"
 	header    = "header.html"
 	footer    = "footer.html"
+	index     = "index.html"
 	blog      = "blog.html"
 	templates = template.Must(template.ParseFiles(
 		views+header,
 		views+footer,
+		views+index,
 		views+blog,
 	))
 )
@@ -29,14 +31,22 @@ func Blog(w http.ResponseWriter, b *reader.Blog) (err error) {
 
 	l4g.Trace("Displaying blog: " + b.Title)
 
-  l4g.Trace("Rendering the blog")
-  err = templates.ExecuteTemplate(w, blog, b)
+	l4g.Trace("Rendering the blog")
+	err = templates.ExecuteTemplate(w, blog, b)
 
 	if err != nil {
 		l4g.Error("Problems rendering template: " + err.Error())
-		fmt.Fprintln(w, "Nope! " + err.Error())
+		fmt.Fprintln(w, "Nope! "+err.Error())
 	}
 
 	l4g.Trace("Done rendering")
+	return
+}
+
+func Index(w http.ResponseWriter) (err error) {
+	l4g.Info("Index page")
+
+	err = templates.ExecuteTemplate(w, index, nil)
+
 	return
 }

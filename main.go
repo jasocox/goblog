@@ -19,7 +19,11 @@ var (
 func RootHandler(w http.ResponseWriter, r *http.Request) {
 	l4g.Trace("Handling request for " + html.EscapeString(r.URL.Path))
 
-	fmt.Fprintln(w, "Home")
+	err := view.Index(w)
+
+	if err != nil {
+		l4g.Error(err)
+	}
 }
 
 func BlogListHandler(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +35,11 @@ func BlogListHandler(w http.ResponseWriter, r *http.Request) {
 func BlogHandler(w http.ResponseWriter, r *http.Request) {
 	l4g.Trace("Handling blog request " + html.EscapeString(r.URL.Path))
 
-	view.Blog(w, blogReader.GetBlog(mux.Vars(r)["blog"]))
+	err := view.Blog(w, blogReader.GetBlog(mux.Vars(r)["blog"]))
+
+	if err != nil {
+		l4g.Error(err)
+	}
 }
 
 func main() {
