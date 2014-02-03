@@ -218,9 +218,13 @@ func (reader *BlogReader) First() []*Blog {
 	blog_len := len(reader.blog_list)
 	size := blog_len
 
+	if size > 3 {
+		size = 3
+	}
+
 	blog_list := make([]*Blog, size)
 
-	for i := 0; blog_len-i > 0; i++ {
+	for i := 0; i < size; i++ {
 		blog_list[i] = reader.blog_list[blog_len-1-i]
 	}
 

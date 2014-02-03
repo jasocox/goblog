@@ -213,4 +213,27 @@ func Test_FirstGivesFirstThree(t *testing.T) {
 		t.Error("Wrong blog")
 		return
 	}
+
+	reader.addBlog(&Blog{Title: "four"})
+
+	blogs = reader.First()
+	if len(blogs) != 3 {
+		t.Error("Should have three blogs")
+		return
+	}
+
+	if !(blogs[2].Title == "two") {
+		t.Error("Wrong blog")
+		return
+	}
+
+	if !(blogs[1].Title == "three") {
+		t.Error("Wrong blog")
+		return
+	}
+
+	if !(blogs[0].Title == "four") {
+		t.Error("Wrong blog")
+		return
+	}
 }
