@@ -11,3 +11,9 @@ end
 task :test do
   puts `go test reader/*.go`
 end
+
+task :fmt do
+  puts `go fmt`
+  puts `go fmt reader/*.go`
+  puts `go fmt view/*.go`
+end
