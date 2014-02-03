@@ -13,11 +13,13 @@ var (
 	header    = "header.html"
 	footer    = "footer.html"
 	index     = "index.html"
+	soon      = "soon.html"
 	blog      = "blog.html"
 	templates = template.Must(template.ParseFiles(
 		views+header,
 		views+footer,
 		views+index,
+		views+soon,
 		views+blog,
 	))
 )
@@ -47,6 +49,14 @@ func Index(w http.ResponseWriter) (err error) {
 	l4g.Info("Index page")
 
 	err = templates.ExecuteTemplate(w, index, nil)
+
+	return
+}
+
+func Soon(w http.ResponseWriter) (err error) {
+	l4g.Info("Coming soon page")
+
+	err = templates.ExecuteTemplate(w, soon, nil)
 
 	return
 }

@@ -45,7 +45,11 @@ func BlogHandler(w http.ResponseWriter, r *http.Request) {
 func ComingSoonHandler(w http.ResponseWriter, r *http.Request) {
 	l4g.Trace("Request %s is listed as coming soon", html.EscapeString(r.URL.Path))
 
-	fmt.Fprintln(w, "Coming soon")
+	err := view.Soon(w)
+
+	if err != nil {
+		l4g.Error(err)
+	}
 }
 
 func main() {
