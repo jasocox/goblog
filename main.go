@@ -42,6 +42,12 @@ func BlogHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func ComingSoonHandler(w http.ResponseWriter, r *http.Request) {
+	l4g.Trace("Request %s is listed as coming soon", html.EscapeString(r.URL.Path))
+
+	fmt.Fprintln(w, "Coming soon")
+}
+
 func main() {
 	var err error
 	l4g.Trace("Starting")
@@ -63,6 +69,9 @@ func main() {
 	router.HandleFunc("/", RootHandler)
 	router.HandleFunc("/blogs", BlogListHandler)
 	router.HandleFunc("/blogs/{blog}", BlogHandler)
+
+	router.HandleFunc("/contact_me", ComingSoonHandler)
+	router.HandleFunc("/about_me", ComingSoonHandler)
 
 	http.Handle("/", router)
 	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
