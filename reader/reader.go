@@ -215,5 +215,14 @@ func (reader *BlogReader) GetBlog(hashed_title string) *Blog {
 }
 
 func (reader *BlogReader) First() []*Blog {
-	return reader.blog_list
+	blog_len := len(reader.blog_list)
+	size := blog_len
+
+	blog_list := make([]*Blog, size)
+
+	for i := 0; blog_len-i > 0; i++ {
+		blog_list[i] = reader.blog_list[blog_len-1-i]
+	}
+
+	return blog_list
 }
