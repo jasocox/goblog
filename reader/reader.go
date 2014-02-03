@@ -26,8 +26,9 @@ func MissingSection(s string) error {
 }
 
 type BlogReader struct {
-	blogs    map[string]*Blog
-	blog_dir string
+	blogs     map[string]*Blog
+	blog_list []*Blog
+	blog_dir  string
 }
 
 const BLOG_FILE_DELIM string = "-----"
@@ -206,8 +207,13 @@ func addSection(blog *Blog, section string, text string, header string) error {
 
 func (reader *BlogReader) addBlog(b *Blog) {
 	reader.blogs[b.HashTitle()] = b
+	reader.blog_list = append(reader.blog_list, b)
 }
 
 func (reader *BlogReader) GetBlog(hashed_title string) *Blog {
 	return reader.blogs[hashed_title]
+}
+
+func (reader *BlogReader) First() []*Blog {
+	return reader.blog_list
 }

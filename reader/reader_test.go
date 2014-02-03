@@ -149,3 +149,27 @@ func Test_GetsNilIfDoesntExist(t *testing.T) {
 		return
 	}
 }
+
+func Test_FirstGivesFirstThree(t *testing.T) {
+	var blogs []*Blog
+	reader := New("dir")
+
+	blogs = reader.First()
+	if len(blogs) != 0 {
+		t.Error("Shouldn't have returned a blog")
+		return
+	}
+
+	reader.addBlog(&Blog{Title: "one"})
+
+	blogs = reader.First()
+	if len(blogs) != 1 {
+		t.Error("Should have just one blog")
+		return
+	}
+
+	if !(blogs[0].Title == "one") {
+		t.Error("Wrong blog")
+		return
+	}
+}
