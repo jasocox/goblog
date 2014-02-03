@@ -35,12 +35,13 @@ const BLOG_FILE_DELIM string = "-----"
 
 func New(blog_dir string) (reader BlogReader) {
 	reader.blogs = make(map[string]*Blog, 0)
+	reader.blog_list = make([]*Blog, 0)
 	reader.blog_dir = blog_dir
 
 	return
 }
 
-func (r BlogReader) ReadBlogs() error {
+func (r *BlogReader) ReadBlogs() error {
 	stat, err := os.Stat(r.blog_dir)
 
 	if os.IsNotExist(err) {
@@ -206,6 +207,7 @@ func addSection(blog *Blog, section string, text string, header string) error {
 }
 
 func (reader *BlogReader) addBlog(b *Blog) {
+	l4g.Trace("Adding blog: %s", b.Title)
 	reader.blogs[b.HashTitle()] = b
 	reader.blog_list = append(reader.blog_list, b)
 }

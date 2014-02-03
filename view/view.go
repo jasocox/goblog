@@ -15,12 +15,14 @@ var (
 	index     = "index.html"
 	soon      = "soon.html"
 	blog      = "blog.html"
+	blog_list = "blog_list.html"
 	templates = template.Must(template.ParseFiles(
 		views+header,
 		views+footer,
 		views+index,
 		views+soon,
 		views+blog,
+		views+blog_list,
 	))
 )
 
@@ -42,6 +44,24 @@ func Blog(w http.ResponseWriter, b *reader.Blog) (err error) {
 	}
 
 	l4g.Trace("Done rendering")
+	return
+}
+
+func BlogList(w http.ResponseWriter, blogs []*reader.Blog) (err error) {
+	l4g.Info("Blog list")
+
+	l4g.Trace("Blogs given:")
+	for _, blog := range blogs {
+		l4g.Trace("\t%s", blog.Title)
+	}
+
+	err = templates.ExecuteTemplate(w, blog_list, blogs)
+
+	if err != nil {
+		l4g.Error("Problems rendering template: " + err.Error())
+		fmt.Fprintln(w, "Nopes! "+err.Error())
+	}
+
 	return
 }
 

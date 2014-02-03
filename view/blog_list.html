@@ -1,0 +1,11 @@
+{{template "header.html"}}
+
+<div class="blog_list">
+  {{range .}}
+    <h1>{{.Title}}</h1>
+
+    <p>{{.Intro}}</p>
+  {{end}}
+</div>
+
+{{template "footer.html"}}
