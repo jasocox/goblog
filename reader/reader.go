@@ -207,7 +207,7 @@ func addSection(blog *Blog, section string, text string, header string) error {
 }
 
 func (reader *BlogReader) addBlog(b *Blog) {
-	l4g.Trace("Adding blog: %s", b.Title)
+	log.Trace("Adding blog: %s", b.Title)
 	reader.blogs[b.HashTitle()] = b
 	reader.blog_list = append(reader.blog_list, b)
 }
@@ -228,6 +228,23 @@ func (reader *BlogReader) First() []*Blog {
 
 	for i := 0; i < size; i++ {
 		blog_list[i] = reader.blog_list[blog_len-1-i]
+	}
+
+	return blog_list
+}
+
+func (reader *BlogReader) Last() []*Blog {
+	blog_len := len(reader.blog_list)
+	size := blog_len - 3
+
+	if size <= 0 {
+		return nil
+	}
+
+	blog_list := make([]*Blog, size)
+
+	for i := 0; i < size; i++ {
+		blog_list[i] = reader.blog_list[size-1-i]
 	}
 
 	return blog_list

@@ -237,3 +237,69 @@ func Test_FirstGivesFirstThree(t *testing.T) {
 		return
 	}
 }
+
+func Test_LastSkipsFirstThree(t *testing.T) {
+	var blogs []*Blog
+	reader := New("dir")
+
+	blogs = reader.Last()
+	if len(blogs) != 0 {
+		t.Error("Shouldn't have returned a blog")
+		return
+	}
+
+	reader.addBlog(&Blog{Title: "one"})
+
+	blogs = reader.Last()
+	if len(blogs) != 0 {
+		t.Error("Shouldn't have returned a blog")
+		return
+	}
+
+	reader.addBlog(&Blog{Title: "two"})
+
+	blogs = reader.Last()
+	if len(blogs) != 0 {
+		t.Error("Should have no blogs")
+		return
+	}
+
+	reader.addBlog(&Blog{Title: "three"})
+
+	blogs = reader.Last()
+	if len(blogs) != 0 {
+		t.Error("Should have no blogs")
+		return
+	}
+
+	reader.addBlog(&Blog{Title: "four"})
+
+	blogs = reader.Last()
+	if len(blogs) != 1 {
+		t.Error("Should have a blog")
+		return
+	}
+
+	if !(blogs[0].Title == "one") {
+		t.Error("Wrong blog")
+		return
+	}
+
+	reader.addBlog(&Blog{Title: "five"})
+
+	blogs = reader.Last()
+	if len(blogs) != 2 {
+		t.Error("Should have a blog")
+		return
+	}
+
+	if !(blogs[0].Title == "two") {
+		t.Error("Wrong blog")
+		return
+	}
+
+	if !(blogs[1].Title == "one") {
+		t.Error("Wrong blog")
+		return
+	}
+}
