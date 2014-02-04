@@ -9,20 +9,22 @@ import (
 )
 
 var (
-	views     = "view/"
-	header    = "header.html"
-	footer    = "footer.html"
-	index     = "index.html"
-	soon      = "soon.html"
-	blog      = "blog.html"
-	blog_list = "blog_list.html"
-	templates = template.Must(template.ParseFiles(
+	views      = "view/"
+	header     = "header.html"
+	footer     = "footer.html"
+	index      = "index.html"
+	soon       = "soon.html"
+	blog       = "blog.html"
+	blog_list  = "blog_list.html"
+	blog_links = "blog_links.html"
+	templates  = template.Must(template.ParseFiles(
 		views+header,
 		views+footer,
 		views+index,
 		views+soon,
 		views+blog,
 		views+blog_list,
+		views+blog_links,
 	))
 )
 
@@ -47,15 +49,24 @@ func Blog(w http.ResponseWriter, b *reader.Blog) (err error) {
 	return
 }
 
-func BlogList(w http.ResponseWriter, blogs []*reader.Blog) (err error) {
+func BlogList(w http.ResponseWriter, first []*reader.Blog, last []*reader.Blog) (err error) {
 	l4g.Info("Blog list")
 
 	l4g.Trace("Blogs given:")
-	for _, blog := range blogs {
+	for _, blog := range first {
 		l4g.Trace("\t%s", blog.Title)
 	}
 
-	err = templates.ExecuteTemplate(w, blog_list, blogs)
+	err = templates.ExecuteTemplate(w, header, nil)
+	if err == nil {
+		err = templates.ExecuteTemplate(w, blog_list, first)
+	}
+	if err == nil {
+		err = templates.ExecuteTemplate(w, blog_links, last)
+	}
+	if err == nil {
+		err = templates.ExecuteTemplate(w, footer, nil)
+	}
 
 	if err != nil {
 		l4g.Error("Problems rendering template: " + err.Error())

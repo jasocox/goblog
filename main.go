@@ -29,7 +29,7 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 func BlogListHandler(w http.ResponseWriter, r *http.Request) {
 	l4g.Trace("List blog request " + html.EscapeString(r.URL.Path))
 
-	err := view.BlogList(w, blogReader.First())
+	err := view.BlogList(w, blogReader.First(), blogReader.Last())
 
 	if err != nil {
 		l4g.Error(err)
