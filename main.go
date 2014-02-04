@@ -34,8 +34,6 @@ func BlogListHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		l4g.Error(err)
 	}
-
-	fmt.Fprintln(w, "Blogs")
 }
 
 func BlogHandler(w http.ResponseWriter, r *http.Request) {
