@@ -1,6 +1,6 @@
 <div class="blog_list">
   {{range .}}
-    <h1>{{.Title}}</h1>
+  <h1><a href="/blogs/{{.HashTitle}}">{{.Title}}</a></h1>
 
     <p>{{.Intro}}</p>
   {{end}}
