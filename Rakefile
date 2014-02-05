@@ -13,7 +13,9 @@ task :test do
 end
 
 task :selenium do
+  pid = spawn("go run main.go -b blogs -p 2002")
   puts `ruby tests/functional/*.rb`
+  Process.kill 0, pid
 end
 
 task :fmt do
