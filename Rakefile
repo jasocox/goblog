@@ -14,7 +14,9 @@ end
 
 task :selenium do
   pid = spawn("go run main.go -b blogs -p 2002")
-  puts `ruby tests/functional/*.rb`
+  Dir.glob("tests/functional/*.rb").each do |file|
+    puts `ruby #{file}`
+  end
   Process.kill 0, pid
 end
 
