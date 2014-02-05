@@ -12,6 +12,10 @@ task :test do
   puts `go test reader/*.go`
 end
 
+task :selenium do
+  puts `ruby tests/functional/*.rb`
+end
+
 task :fmt do
   puts `go fmt`
   puts `go fmt reader/*.go`
