@@ -3,7 +3,6 @@ package main
 import (
 	l4g "code.google.com/p/log4go"
 	"flag"
-	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/jasocox/goblog/reader"
 	"github.com/jasocox/goblog/view"
@@ -13,6 +12,7 @@ import (
 
 var (
 	blog_dir   = flag.String("b", "", "directory where blogs a stored")
+  protocol   = flag.String("p", "2001", "protocal to run on")
 	blogReader reader.BlogReader
 )
 
@@ -83,7 +83,7 @@ func main() {
 
 	http.Handle("/", router)
 	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
-	err = http.ListenAndServe(":2001", nil)
+	err = http.ListenAndServe(":" + *protocol, nil)
 	if err != nil {
 		l4g.Error("Problem with http server: %s", err)
 	}
