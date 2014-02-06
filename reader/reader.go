@@ -4,16 +4,11 @@ import (
 	"bufio"
 	l4g "code.google.com/p/log4go"
 	"errors"
-	"fmt"
+	"github.com/jasocox/goblog/blog"
 	"os"
 )
 
-var (
-	NotDirectory      = errors.New("Not a Directory")
-	InvalidSection    = errors.New("Invalid Section")
-	AlreadySetSection = errors.New("Already Set Section")
-	InvalidStructure  = errors.New("Invalid Structure")
-)
+var NotDirectory = errors.New("Not a Directory")
 
 var log l4g.Logger
 
@@ -21,21 +16,15 @@ func init() {
 	log = l4g.NewDefaultLogger(l4g.WARNING)
 }
 
-func MissingSection(s string) error {
-	return errors.New(fmt.Sprintf("Missing Section: %s", s))
-}
-
 type BlogReader struct {
-	blogs     map[string]*Blog
-	blog_list []*Blog
-	blog_dir  string
+	blogs    *blog.Blogs
+	blog_dir string
 }
 
 const BLOG_FILE_DELIM string = "-----"
 
-func New(blog_dir string) (reader BlogReader) {
-	reader.blogs = make(map[string]*Blog, 0)
-	reader.blog_list = make([]*Blog, 0)
+func New(blogs *blog.Blogs, blog_dir string) (reader BlogReader) {
+	reader.blogs = blogs
 	reader.blog_dir = blog_dir
 
 	return
@@ -69,7 +58,7 @@ func (r *BlogReader) ReadBlogs() error {
 
 	for _, filename := range file_list {
 		var (
-			blog     *Blog
+			blog     *blog.Blog
 			errr     error
 			filepath string
 		)
@@ -89,7 +78,7 @@ func (r *BlogReader) ReadBlogs() error {
 	return err
 }
 
-func NewBlogFromFile(filename string) (blog *Blog, err error) {
+func NewBlogFromFile(filename string) (b *blog.Blog, err error) {
 	var (
 		section           string
 		subsection_header string
@@ -110,7 +99,7 @@ func NewBlogFromFile(filename string) (blog *Blog, err error) {
 		return nil, err
 	}
 
-	blog = new(Blog)
+	b = blog.NewBlog()
 	scanner := bufio.NewScanner(file)
 	for line_num = 1; scanner.Scan(); line_num++ {
 		line := scanner.Text()
@@ -120,15 +109,12 @@ func NewBlogFromFile(filename string) (blog *Blog, err error) {
 		}
 		log.Trace("Line %d: %s", line_num, line)
 
-		if section == "" && IsSection(line) {
+		if section == "" {
 			log.Trace("Setting the section to: %s", line)
 			section = line
-		} else if section == "" {
-			err = InvalidSection
-			break
 		} else if line == BLOG_FILE_DELIM {
 			log.Trace("Done parsing section: section=%s body=%s subsection_header=%s", section, body, subsection_header)
-			err = addSection(blog, section, body, subsection_header)
+			err = b.AddSection(section, body, subsection_header)
 
 			section = ""
 			body = ""
@@ -138,7 +124,7 @@ func NewBlogFromFile(filename string) (blog *Blog, err error) {
 				break
 			}
 		} else {
-			if section == SUBSECTION && subsection_header == "" {
+			if section == blog.SUBSECTION && subsection_header == "" {
 				subsection_header = line
 			} else {
 				body = line
@@ -147,7 +133,8 @@ func NewBlogFromFile(filename string) (blog *Blog, err error) {
 	}
 
 	if !(section == "") && err == nil {
-		err = addSection(blog, section, body, subsection_header)
+		log.Trace("Add section: %s %s %s", section, body, subsection_header)
+		err = b.AddSection(section, body, subsection_header)
 	}
 
 	if err != nil {
@@ -156,96 +143,16 @@ func NewBlogFromFile(filename string) (blog *Blog, err error) {
 	}
 
 	err = scanner.Err()
-
-	if blog.Title == "" {
-		return nil, MissingSection("Title")
-	} else if blog.Intro == "" {
-		return nil, MissingSection("Intro")
-	} else if len(blog.Tags) == 0 {
-		return nil, MissingSection("Tags")
+	if err == nil {
+		err = b.Validate()
 	}
 
 	return
 }
 
-func addSection(blog *Blog, section string, text string, header string) error {
-	if text == "" {
-		return InvalidStructure
-	}
-
-	log.Trace("Add section: %s %s %s", section, text, header)
-	switch section {
-	case TITLE:
-		if !(blog.Title == "") {
-			return AlreadySetSection
-		}
-
-		blog.Title = text
-	case INTRO:
-		if !(blog.Intro == "") {
-			return AlreadySetSection
-		}
-
-		blog.Intro = text
-	case OUTRO:
-		if !(blog.Outro == "") {
-			return AlreadySetSection
-		}
-
-		blog.Outro = text
-	case TAG:
-		blog.Tags = append(blog.Tags, Tag{text})
-	case SUBSECTION:
-		if header == "" {
-			return InvalidStructure
-		}
-
-		blog.Subsections = append(blog.Subsections, Subsection{header, text})
-	}
-
-	return nil
-}
-
-func (reader *BlogReader) addBlog(b *Blog) {
+func (reader *BlogReader) addBlog(b *blog.Blog) {
 	log.Trace("Adding blog: %s", b.Title)
-	reader.blogs[b.HashTitle()] = b
-	reader.blog_list = append(reader.blog_list, b)
-}
-
-func (reader *BlogReader) GetBlog(hashed_title string) *Blog {
-	return reader.blogs[hashed_title]
-}
-
-func (reader *BlogReader) First() []*Blog {
-	blog_len := len(reader.blog_list)
-	size := blog_len
-
-	if size > 3 {
-		size = 3
-	}
-
-	blog_list := make([]*Blog, size)
-
-	for i := 0; i < size; i++ {
-		blog_list[i] = reader.blog_list[blog_len-1-i]
-	}
-
-	return blog_list
-}
-
-func (reader *BlogReader) Last() []*Blog {
-	blog_len := len(reader.blog_list)
-	size := blog_len - 3
-
-	if size <= 0 {
-		return nil
-	}
-
-	blog_list := make([]*Blog, size)
-
-	for i := 0; i < size; i++ {
-		blog_list[i] = reader.blog_list[size-1-i]
-	}
-
-	return blog_list
+	log.Trace("Blogs:")
+	reader.blogs.Add(b)
+	log.Trace(reader.blogs.Blogs())
 }

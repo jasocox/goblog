@@ -22,6 +22,7 @@ end
 
 task :fmt do
   puts `go fmt`
+  puts `go fmt blog/*.go`
   puts `go fmt reader/*.go`
   puts `go fmt view/*.go`
 end

@@ -1,6 +1,9 @@
 package reader
 
-import "testing"
+import (
+	"github.com/jasocox/goblog/blog"
+	"testing"
+)
 
 func Test_MakeBlogWithFile(t *testing.T) {
 	blog, err := NewBlogFromFile("example.txt")
@@ -99,207 +102,29 @@ func Test_BlogRequiresTag(t *testing.T) {
 }
 
 func Test_CanAddAndGetBlogs(t *testing.T) {
-	reader := New("dir")
+	blogs := blog.New()
+	reader := New(blogs, "dir")
 
-	blog1 := &Blog{Title: "Title 1"}
-	blog2 := &Blog{Title: "Title 2"}
-	blog3 := &Blog{Title: "Title 3"}
+	blog1 := &blog.Blog{Title: "Title 1"}
+	blog2 := &blog.Blog{Title: "Title 2"}
+	blog3 := &blog.Blog{Title: "Title 3"}
 
 	reader.addBlog(blog1)
 	reader.addBlog(blog2)
 	reader.addBlog(blog3)
 
-	if reader.GetBlog("title_1") == nil {
-		t.Error("Did not receive a blog")
-		return
-	}
-
-	if reader.GetBlog("title_2") == nil {
-		t.Error("Did not receive a blog")
-		return
-	}
-
-	if reader.GetBlog("title_3") == nil {
-		t.Error("Did not receive a blog")
-		return
-	}
-
-	if reader.GetBlog("title_1") != blog1 {
+	if blogs.Blogs()[0] != blog1 {
 		t.Error("Did not receive expected blog")
 		return
 	}
 
-	if reader.GetBlog("title_2") != blog2 {
+	if blogs.Blogs()[1] != blog2 {
 		t.Error("Did not receive expected blog")
 		return
 	}
 
-	if reader.GetBlog("title_3") != blog3 {
+	if blogs.Blogs()[2] != blog3 {
 		t.Error("Did not receive expected blog")
-		return
-	}
-}
-
-func Test_GetsNilIfDoesntExist(t *testing.T) {
-	reader := New("dir")
-	reader.addBlog(&Blog{Title: "dont care"})
-
-	if reader.GetBlog("title_1") != nil {
-		t.Error("Expected nil for non-existant blog")
-		return
-	}
-}
-
-func Test_FirstGivesFirstThree(t *testing.T) {
-	var blogs []*Blog
-	reader := New("dir")
-
-	blogs = reader.First()
-	if len(blogs) != 0 {
-		t.Error("Shouldn't have returned a blog")
-		return
-	}
-
-	reader.addBlog(&Blog{Title: "one"})
-
-	blogs = reader.First()
-	if len(blogs) != 1 {
-		t.Error("Should have just one blog")
-		return
-	}
-
-	if !(blogs[0].Title == "one") {
-		t.Error("Wrong blog")
-		return
-	}
-
-	reader.addBlog(&Blog{Title: "two"})
-
-	blogs = reader.First()
-	if len(blogs) != 2 {
-		t.Error("Should have two blogs")
-		return
-	}
-
-	if !(blogs[1].Title == "one") {
-		t.Error("Wrong blog")
-		return
-	}
-
-	if !(blogs[0].Title == "two") {
-		t.Error("Wrong blog")
-		return
-	}
-
-	reader.addBlog(&Blog{Title: "three"})
-
-	blogs = reader.First()
-	if len(blogs) != 3 {
-		t.Error("Should have three blogs")
-		return
-	}
-
-	if !(blogs[2].Title == "one") {
-		t.Error("Wrong blog")
-		return
-	}
-
-	if !(blogs[1].Title == "two") {
-		t.Error("Wrong blog")
-		return
-	}
-
-	if !(blogs[0].Title == "three") {
-		t.Error("Wrong blog")
-		return
-	}
-
-	reader.addBlog(&Blog{Title: "four"})
-
-	blogs = reader.First()
-	if len(blogs) != 3 {
-		t.Error("Should have three blogs")
-		return
-	}
-
-	if !(blogs[2].Title == "two") {
-		t.Error("Wrong blog")
-		return
-	}
-
-	if !(blogs[1].Title == "three") {
-		t.Error("Wrong blog")
-		return
-	}
-
-	if !(blogs[0].Title == "four") {
-		t.Error("Wrong blog")
-		return
-	}
-}
-
-func Test_LastSkipsFirstThree(t *testing.T) {
-	var blogs []*Blog
-	reader := New("dir")
-
-	blogs = reader.Last()
-	if len(blogs) != 0 {
-		t.Error("Shouldn't have returned a blog")
-		return
-	}
-
-	reader.addBlog(&Blog{Title: "one"})
-
-	blogs = reader.Last()
-	if len(blogs) != 0 {
-		t.Error("Shouldn't have returned a blog")
-		return
-	}
-
-	reader.addBlog(&Blog{Title: "two"})
-
-	blogs = reader.Last()
-	if len(blogs) != 0 {
-		t.Error("Should have no blogs")
-		return
-	}
-
-	reader.addBlog(&Blog{Title: "three"})
-
-	blogs = reader.Last()
-	if len(blogs) != 0 {
-		t.Error("Should have no blogs")
-		return
-	}
-
-	reader.addBlog(&Blog{Title: "four"})
-
-	blogs = reader.Last()
-	if len(blogs) != 1 {
-		t.Error("Should have a blog")
-		return
-	}
-
-	if !(blogs[0].Title == "one") {
-		t.Error("Wrong blog")
-		return
-	}
-
-	reader.addBlog(&Blog{Title: "five"})
-
-	blogs = reader.Last()
-	if len(blogs) != 2 {
-		t.Error("Should have a blog")
-		return
-	}
-
-	if !(blogs[0].Title == "two") {
-		t.Error("Wrong blog")
-		return
-	}
-
-	if !(blogs[1].Title == "one") {
-		t.Error("Wrong blog")
 		return
 	}
 }

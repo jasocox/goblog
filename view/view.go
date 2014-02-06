@@ -3,7 +3,7 @@ package view
 import (
 	l4g "code.google.com/p/log4go"
 	"fmt"
-	"github.com/jasocox/goblog/reader"
+	"github.com/jasocox/goblog/blog"
 	"html/template"
 	"net/http"
 )
@@ -14,7 +14,7 @@ var (
 	footer     = "footer.html"
 	index      = "index.html"
 	soon       = "soon.html"
-	blog       = "blog.html"
+	ablog      = "blog.html"
 	blog_list  = "blog_list.html"
 	blog_links = "blog_links.html"
 	templates  = template.Must(template.ParseFiles(
@@ -22,13 +22,13 @@ var (
 		views+footer,
 		views+index,
 		views+soon,
-		views+blog,
+		views+ablog,
 		views+blog_list,
 		views+blog_links,
 	))
 )
 
-func Blog(w http.ResponseWriter, b *reader.Blog) (err error) {
+func Blog(w http.ResponseWriter, b *blog.Blog) (err error) {
 	if b == nil {
 		l4g.Info("Requested blog that does not exist")
 		fmt.Fprintln(w, "NOT FOUND! :D")
@@ -38,7 +38,7 @@ func Blog(w http.ResponseWriter, b *reader.Blog) (err error) {
 	l4g.Trace("Displaying blog: " + b.Title)
 
 	l4g.Trace("Rendering the blog")
-	err = templates.ExecuteTemplate(w, blog, b)
+	err = templates.ExecuteTemplate(w, ablog, b)
 
 	if err != nil {
 		l4g.Error("Problems rendering template: " + err.Error())
@@ -49,7 +49,7 @@ func Blog(w http.ResponseWriter, b *reader.Blog) (err error) {
 	return
 }
 
-func BlogList(w http.ResponseWriter, first []*reader.Blog, last []*reader.Blog) (err error) {
+func BlogList(w http.ResponseWriter, first []*blog.Blog, last []*blog.Blog) (err error) {
 	l4g.Info("Blog list")
 
 	l4g.Trace("Blogs given:")

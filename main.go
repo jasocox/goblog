@@ -4,6 +4,7 @@ import (
 	l4g "code.google.com/p/log4go"
 	"flag"
 	"github.com/gorilla/mux"
+	"github.com/jasocox/goblog/blog"
 	"github.com/jasocox/goblog/reader"
 	"github.com/jasocox/goblog/view"
 	"html"
@@ -13,6 +14,7 @@ import (
 var (
 	blog_dir   = flag.String("b", "", "directory where blogs a stored")
 	protocol   = flag.String("p", "2001", "protocal to run on")
+	blogs      *blog.Blogs
 	blogReader reader.BlogReader
 )
 
@@ -29,7 +31,7 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 func BlogListHandler(w http.ResponseWriter, r *http.Request) {
 	l4g.Trace("List blog request " + html.EscapeString(r.URL.Path))
 
-	err := view.BlogList(w, blogReader.First(), blogReader.Last())
+	err := view.BlogList(w, blogs.First(), blogs.Last())
 
 	if err != nil {
 		l4g.Error(err)
@@ -39,7 +41,7 @@ func BlogListHandler(w http.ResponseWriter, r *http.Request) {
 func BlogHandler(w http.ResponseWriter, r *http.Request) {
 	l4g.Trace("Handling blog request " + html.EscapeString(r.URL.Path))
 
-	err := view.Blog(w, blogReader.GetBlog(mux.Vars(r)["blog"]))
+	err := view.Blog(w, blogs.Get(mux.Vars(r)["blog"]))
 
 	if err != nil {
 		l4g.Error(err)
@@ -66,7 +68,8 @@ func main() {
 		l4g.Error("Must specify a directory where blogs are stored")
 	}
 
-	blogReader = reader.New(*blog_dir)
+	blogs = blog.New()
+	blogReader = reader.New(blogs, *blog_dir)
 
 	err = blogReader.ReadBlogs()
 	if err != nil {
