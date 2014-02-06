@@ -11,11 +11,9 @@ import (
 )
 
 var (
-	blog_dir   = flag.String("b", "", "directory where blogs a stored")
-	protocol   = flag.String("p", "2001", "protocal to run on")
-	blogs      *blog.Blogs
-	blogReader reader.BlogReader
-	log        = l4g.NewDefaultLogger(l4g.WARNING)
+	blog_dir = flag.String("b", "", "directory where blogs a stored")
+	protocol = flag.String("p", "2001", "protocal to run on")
+	log      = l4g.NewDefaultLogger(l4g.WARNING)
 )
 
 func main() {
@@ -28,8 +26,8 @@ func main() {
 		log.Error("Must specify a directory where blogs are stored")
 	}
 
-	blogs = blog.New()
-	blogReader = reader.New(blogs, *blog_dir, log)
+	blogs := blog.New()
+	blogReader := reader.New(blogs, *blog_dir, log)
 	v := view.New(blogs, log)
 	router := router.New(v, log)
 
