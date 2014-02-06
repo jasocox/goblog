@@ -30,39 +30,40 @@ var (
 
 type View struct {
 	blogs *blog.Blogs
+	log   l4g.Logger
 }
 
-func New(blogs *blog.Blogs) View {
-	return View{blogs}
+func New(blogs *blog.Blogs, log l4g.Logger) View {
+	return View{blogs, log}
 }
 
 func (v View) Blog(w http.ResponseWriter, b *blog.Blog) (err error) {
 	if b == nil {
-		l4g.Info("Requested blog that does not exist")
+		v.log.Info("Requested blog that does not exist")
 		fmt.Fprintln(w, "NOT FOUND! :D")
 		return
 	}
 
-	l4g.Trace("Displaying blog: " + b.Title)
+	v.log.Trace("Displaying blog: " + b.Title)
 
-	l4g.Trace("Rendering the blog")
+	v.log.Trace("Rendering the blog")
 	err = templates.ExecuteTemplate(w, ablog, b)
 
 	if err != nil {
-		l4g.Error("Problems rendering template: " + err.Error())
+		v.log.Error("Problems rendering template: " + err.Error())
 		fmt.Fprintln(w, "Nope! "+err.Error())
 	}
 
-	l4g.Trace("Done rendering")
+	v.log.Trace("Done rendering")
 	return
 }
 
 func (v View) BlogList(w http.ResponseWriter) (err error) {
-	l4g.Info("Blog list")
+	v.log.Info("Blog list")
 
-	l4g.Trace("Blogs given:")
+	v.log.Trace("Blogs given:")
 	for _, b := range v.blogs.First() {
-		l4g.Trace("\t%s", b.Title)
+		v.log.Trace("\t%s", b.Title)
 	}
 
 	err = templates.ExecuteTemplate(w, header, nil)
@@ -77,7 +78,7 @@ func (v View) BlogList(w http.ResponseWriter) (err error) {
 	}
 
 	if err != nil {
-		l4g.Error("Problems rendering template: " + err.Error())
+		v.log.Error("Problems rendering template: " + err.Error())
 		fmt.Fprintln(w, "Nopes! "+err.Error())
 	}
 
@@ -85,7 +86,7 @@ func (v View) BlogList(w http.ResponseWriter) (err error) {
 }
 
 func (v View) Index(w http.ResponseWriter) (err error) {
-	l4g.Info("Index page")
+	v.log.Info("Index page")
 
 	err = templates.ExecuteTemplate(w, index, nil)
 
@@ -93,7 +94,7 @@ func (v View) Index(w http.ResponseWriter) (err error) {
 }
 
 func (v View) Soon(w http.ResponseWriter) (err error) {
-	l4g.Info("Coming soon page")
+	v.log.Info("Coming soon page")
 
 	err = templates.ExecuteTemplate(w, soon, nil)
 

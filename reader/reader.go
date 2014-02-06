@@ -10,22 +10,18 @@ import (
 
 var NotDirectory = errors.New("Not a Directory")
 
-var log l4g.Logger
-
-func init() {
-	log = l4g.NewDefaultLogger(l4g.WARNING)
-}
-
 type BlogReader struct {
 	blogs    *blog.Blogs
 	blog_dir string
+	log      l4g.Logger
 }
 
 const BLOG_FILE_DELIM string = "-----"
 
-func New(blogs *blog.Blogs, blog_dir string) (reader BlogReader) {
+func New(blogs *blog.Blogs, blog_dir string, log l4g.Logger) (reader BlogReader) {
 	reader.blogs = blogs
 	reader.blog_dir = blog_dir
+	reader.log = log
 
 	return
 }
@@ -34,25 +30,25 @@ func (r *BlogReader) ReadBlogs() error {
 	stat, err := os.Stat(r.blog_dir)
 
 	if os.IsNotExist(err) {
-		log.Error("Specified blog directory does not exist: %s", r.blog_dir)
+		r.log.Error("Specified blog directory does not exist: %s", r.blog_dir)
 		return err
 	}
 
 	if !stat.IsDir() {
 		err = NotDirectory
-		log.Error("Specified blog location is not a directory: %s", r.blog_dir)
+		r.log.Error("Specified blog location is not a directory: %s", r.blog_dir)
 		return err
 	}
 
 	file, err := os.Open(r.blog_dir)
 	if err != nil {
-		log.Error("Error reading the blog directory: %s", err.Error())
+		r.log.Error("Error reading the blog directory: %s", err.Error())
 		return err
 	}
 
 	file_list, err := file.Readdirnames(0)
 	if err != nil {
-		log.Error("Error getting list of file names in the blog directory: %s", err.Error())
+		r.log.Error("Error getting list of file names in the blog directory: %s", err.Error())
 		return err
 	}
 
@@ -64,11 +60,11 @@ func (r *BlogReader) ReadBlogs() error {
 		)
 
 		filepath = r.blog_dir + "/" + filename
-		log.Trace("Reading blog file: %s", filepath)
+		r.log.Trace("Reading blog file: %s", filepath)
 
-		blog, errr = NewBlogFromFile(filepath)
+		blog, errr = r.NewBlogFromFile(filepath)
 		if errr != nil {
-			log.Error("Problems reading a blog file: %s", errr.Error())
+			r.log.Error("Problems reading a blog file: %s", errr.Error())
 			err = errr
 		} else {
 			r.addBlog(blog)
@@ -78,7 +74,7 @@ func (r *BlogReader) ReadBlogs() error {
 	return err
 }
 
-func NewBlogFromFile(filename string) (b *blog.Blog, err error) {
+func (r BlogReader) NewBlogFromFile(filename string) (b *blog.Blog, err error) {
 	var (
 		section           string
 		subsection_header string
@@ -87,7 +83,7 @@ func NewBlogFromFile(filename string) (b *blog.Blog, err error) {
 	)
 
 	if _, err = os.Stat(filename); os.IsNotExist(err) {
-		log.Error("Error finding blog file: %s", err.Error())
+		r.log.Error("Error finding blog file: %s", err.Error())
 		return nil, err
 	}
 
@@ -95,7 +91,7 @@ func NewBlogFromFile(filename string) (b *blog.Blog, err error) {
 	defer file.Close()
 
 	if err != nil {
-		log.Error("Error reading blog file: %s", err.Error())
+		r.log.Error("Error reading blog file: %s", err.Error())
 		return nil, err
 	}
 
@@ -107,13 +103,13 @@ func NewBlogFromFile(filename string) (b *blog.Blog, err error) {
 		if line == "" {
 			continue
 		}
-		log.Trace("Line %d: %s", line_num, line)
+		r.log.Trace("Line %d: %s", line_num, line)
 
 		if section == "" {
-			log.Trace("Setting the section to: %s", line)
+			r.log.Trace("Setting the section to: %s", line)
 			section = line
 		} else if line == BLOG_FILE_DELIM {
-			log.Trace("Done parsing section: section=%s body=%s subsection_header=%s", section, body, subsection_header)
+			r.log.Trace("Done parsing section: section=%s body=%s subsection_header=%s", section, body, subsection_header)
 			err = b.AddSection(section, body, subsection_header)
 
 			section = ""
@@ -133,12 +129,12 @@ func NewBlogFromFile(filename string) (b *blog.Blog, err error) {
 	}
 
 	if !(section == "") && err == nil {
-		log.Trace("Add section: %s %s %s", section, body, subsection_header)
+		r.log.Trace("Add section: %s %s %s", section, body, subsection_header)
 		err = b.AddSection(section, body, subsection_header)
 	}
 
 	if err != nil {
-		log.Error("Problems reading blog on line %d: %s", line_num, err.Error())
+		r.log.Error("Problems reading blog on line %d: %s", line_num, err.Error())
 		return
 	}
 
@@ -151,8 +147,8 @@ func NewBlogFromFile(filename string) (b *blog.Blog, err error) {
 }
 
 func (reader *BlogReader) addBlog(b *blog.Blog) {
-	log.Trace("Adding blog: %s", b.Title)
-	log.Trace("Blogs:")
+	reader.log.Trace("Adding blog: %s", b.Title)
+	reader.log.Trace("Blogs:")
 	reader.blogs.Add(b)
-	log.Trace(reader.blogs.Blogs())
+	reader.log.Trace(reader.blogs.Blogs())
 }

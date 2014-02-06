@@ -17,6 +17,7 @@ var (
 	blogs      *blog.Blogs
 	blogReader reader.BlogReader
 	v          view.View
+	log        = l4g.NewDefaultLogger(l4g.WARNING)
 )
 
 func RootHandler(w http.ResponseWriter, r *http.Request) {
@@ -70,8 +71,8 @@ func main() {
 	}
 
 	blogs = blog.New()
-	blogReader = reader.New(blogs, *blog_dir)
-	v = view.New(blogs)
+	blogReader = reader.New(blogs, *blog_dir, log)
+	v = view.New(blogs, log)
 
 	err = blogReader.ReadBlogs()
 	if err != nil {

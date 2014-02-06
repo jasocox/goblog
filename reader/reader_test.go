@@ -1,12 +1,20 @@
 package reader
 
 import (
+	l4g "code.google.com/p/log4go"
 	"github.com/jasocox/goblog/blog"
 	"testing"
 )
 
+var log l4g.Logger
+
+func init() {
+	log = l4g.NewLogger()
+}
+
 func Test_MakeBlogWithFile(t *testing.T) {
-	blog, err := NewBlogFromFile("example.txt")
+	r := New(blog.New(), "dir", log)
+	blog, err := r.NewBlogFromFile("example.txt")
 
 	if err != nil {
 		t.Error("Unexpected error parsing the blog file:", err.Error())
@@ -60,7 +68,8 @@ func Test_MakeBlogWithFile(t *testing.T) {
 }
 
 func Test_BlogRequiresTitle(t *testing.T) {
-	_, err := NewBlogFromFile("missing_title.txt")
+	r := New(blog.New(), "dir", log)
+	_, err := r.NewBlogFromFile("missing_title.txt")
 
 	if err == nil {
 		t.Error("Expected error")
@@ -74,7 +83,8 @@ func Test_BlogRequiresTitle(t *testing.T) {
 }
 
 func Test_BlogRequiresIntro(t *testing.T) {
-	_, err := NewBlogFromFile("missing_intro.txt")
+	r := New(blog.New(), "dir", log)
+	_, err := r.NewBlogFromFile("missing_intro.txt")
 
 	if err == nil {
 		t.Error("Expected error")
@@ -88,7 +98,8 @@ func Test_BlogRequiresIntro(t *testing.T) {
 }
 
 func Test_BlogRequiresTag(t *testing.T) {
-	_, err := NewBlogFromFile("missing_tag.txt")
+	r := New(blog.New(), "dir", log)
+	_, err := r.NewBlogFromFile("missing_tag.txt")
 
 	if err == nil {
 		t.Error("Expected error")
@@ -103,7 +114,7 @@ func Test_BlogRequiresTag(t *testing.T) {
 
 func Test_CanAddAndGetBlogs(t *testing.T) {
 	blogs := blog.New()
-	reader := New(blogs, "dir")
+	reader := New(blogs, "dir", log)
 
 	blog1 := &blog.Blog{Title: "Title 1"}
 	blog2 := &blog.Blog{Title: "Title 2"}
