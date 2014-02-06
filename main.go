@@ -16,12 +16,13 @@ var (
 	protocol   = flag.String("p", "2001", "protocal to run on")
 	blogs      *blog.Blogs
 	blogReader reader.BlogReader
+	v          view.View
 )
 
 func RootHandler(w http.ResponseWriter, r *http.Request) {
 	l4g.Trace("Handling request for " + html.EscapeString(r.URL.Path))
 
-	err := view.Index(w)
+	err := v.Index(w)
 
 	if err != nil {
 		l4g.Error(err)
@@ -31,7 +32,7 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 func BlogListHandler(w http.ResponseWriter, r *http.Request) {
 	l4g.Trace("List blog request " + html.EscapeString(r.URL.Path))
 
-	err := view.BlogList(w, blogs.First(), blogs.Last())
+	err := v.BlogList(w)
 
 	if err != nil {
 		l4g.Error(err)
@@ -41,7 +42,7 @@ func BlogListHandler(w http.ResponseWriter, r *http.Request) {
 func BlogHandler(w http.ResponseWriter, r *http.Request) {
 	l4g.Trace("Handling blog request " + html.EscapeString(r.URL.Path))
 
-	err := view.Blog(w, blogs.Get(mux.Vars(r)["blog"]))
+	err := v.Blog(w, blogs.Get(mux.Vars(r)["blog"]))
 
 	if err != nil {
 		l4g.Error(err)
@@ -51,7 +52,7 @@ func BlogHandler(w http.ResponseWriter, r *http.Request) {
 func ComingSoonHandler(w http.ResponseWriter, r *http.Request) {
 	l4g.Trace("Request %s is listed as coming soon", html.EscapeString(r.URL.Path))
 
-	err := view.Soon(w)
+	err := v.Soon(w)
 
 	if err != nil {
 		l4g.Error(err)
@@ -70,6 +71,7 @@ func main() {
 
 	blogs = blog.New()
 	blogReader = reader.New(blogs, *blog_dir)
+	v = view.New(blogs)
 
 	err = blogReader.ReadBlogs()
 	if err != nil {

@@ -28,7 +28,15 @@ var (
 	))
 )
 
-func Blog(w http.ResponseWriter, b *blog.Blog) (err error) {
+type View struct {
+	blogs *blog.Blogs
+}
+
+func New(blogs *blog.Blogs) View {
+	return View{blogs}
+}
+
+func (v View) Blog(w http.ResponseWriter, b *blog.Blog) (err error) {
 	if b == nil {
 		l4g.Info("Requested blog that does not exist")
 		fmt.Fprintln(w, "NOT FOUND! :D")
@@ -49,20 +57,20 @@ func Blog(w http.ResponseWriter, b *blog.Blog) (err error) {
 	return
 }
 
-func BlogList(w http.ResponseWriter, first []*blog.Blog, last []*blog.Blog) (err error) {
+func (v View) BlogList(w http.ResponseWriter) (err error) {
 	l4g.Info("Blog list")
 
 	l4g.Trace("Blogs given:")
-	for _, blog := range first {
-		l4g.Trace("\t%s", blog.Title)
+	for _, b := range v.blogs.First() {
+		l4g.Trace("\t%s", b.Title)
 	}
 
 	err = templates.ExecuteTemplate(w, header, nil)
 	if err == nil {
-		err = templates.ExecuteTemplate(w, blog_list, first)
+		err = templates.ExecuteTemplate(w, blog_list, v.blogs.First())
 	}
 	if err == nil {
-		err = templates.ExecuteTemplate(w, blog_links, last)
+		err = templates.ExecuteTemplate(w, blog_links, v.blogs.Last())
 	}
 	if err == nil {
 		err = templates.ExecuteTemplate(w, footer, nil)
@@ -76,7 +84,7 @@ func BlogList(w http.ResponseWriter, first []*blog.Blog, last []*blog.Blog) (err
 	return
 }
 
-func Index(w http.ResponseWriter) (err error) {
+func (v View) Index(w http.ResponseWriter) (err error) {
 	l4g.Info("Index page")
 
 	err = templates.ExecuteTemplate(w, index, nil)
@@ -84,7 +92,7 @@ func Index(w http.ResponseWriter) (err error) {
 	return
 }
 
-func Soon(w http.ResponseWriter) (err error) {
+func (v View) Soon(w http.ResponseWriter) (err error) {
 	l4g.Info("Coming soon page")
 
 	err = templates.ExecuteTemplate(w, soon, nil)
