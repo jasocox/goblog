@@ -37,7 +37,8 @@ func New(blogs *blog.Blogs, log l4g.Logger) View {
 	return View{blogs, log}
 }
 
-func (v View) Blog(w http.ResponseWriter, b *blog.Blog) (err error) {
+func (v View) Blog(w http.ResponseWriter, blog_name string) (err error) {
+	b := v.blogs.Get(blog_name)
 	if b == nil {
 		v.log.Info("Requested blog that does not exist")
 		fmt.Fprintln(w, "NOT FOUND! :D")

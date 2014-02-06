@@ -3,11 +3,10 @@ package main
 import (
 	l4g "code.google.com/p/log4go"
 	"flag"
-	"github.com/gorilla/mux"
 	"github.com/jasocox/goblog/blog"
 	"github.com/jasocox/goblog/reader"
+	"github.com/jasocox/goblog/router"
 	"github.com/jasocox/goblog/view"
-	"html"
 	"net/http"
 )
 
@@ -16,49 +15,8 @@ var (
 	protocol   = flag.String("p", "2001", "protocal to run on")
 	blogs      *blog.Blogs
 	blogReader reader.BlogReader
-	v          view.View
 	log        = l4g.NewDefaultLogger(l4g.WARNING)
 )
-
-func RootHandler(w http.ResponseWriter, r *http.Request) {
-	l4g.Trace("Handling request for " + html.EscapeString(r.URL.Path))
-
-	err := v.Index(w)
-
-	if err != nil {
-		l4g.Error(err)
-	}
-}
-
-func BlogListHandler(w http.ResponseWriter, r *http.Request) {
-	l4g.Trace("List blog request " + html.EscapeString(r.URL.Path))
-
-	err := v.BlogList(w)
-
-	if err != nil {
-		l4g.Error(err)
-	}
-}
-
-func BlogHandler(w http.ResponseWriter, r *http.Request) {
-	l4g.Trace("Handling blog request " + html.EscapeString(r.URL.Path))
-
-	err := v.Blog(w, blogs.Get(mux.Vars(r)["blog"]))
-
-	if err != nil {
-		l4g.Error(err)
-	}
-}
-
-func ComingSoonHandler(w http.ResponseWriter, r *http.Request) {
-	l4g.Trace("Request %s is listed as coming soon", html.EscapeString(r.URL.Path))
-
-	err := v.Soon(w)
-
-	if err != nil {
-		l4g.Error(err)
-	}
-}
 
 func main() {
 	var err error
@@ -72,20 +30,13 @@ func main() {
 
 	blogs = blog.New()
 	blogReader = reader.New(blogs, *blog_dir, log)
-	v = view.New(blogs, log)
+	v := view.New(blogs, log)
+	router := router.New(v, log)
 
 	err = blogReader.ReadBlogs()
 	if err != nil {
 		l4g.Error("Error creating blog reader: %s", err)
 	}
-
-	router := mux.NewRouter()
-	router.HandleFunc("/", RootHandler)
-	router.HandleFunc("/blogs", BlogListHandler)
-	router.HandleFunc("/blogs/{blog}", BlogHandler)
-
-	router.HandleFunc("/contact_me", ComingSoonHandler)
-	router.HandleFunc("/about_me", ComingSoonHandler)
 
 	http.Handle("/", router)
 	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
