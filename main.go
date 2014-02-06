@@ -20,12 +20,12 @@ var (
 
 func main() {
 	var err error
-	l4g.Trace("Starting")
+	log.Trace("Starting")
 
 	flag.Parse()
 
 	if *blog_dir == "" {
-		l4g.Error("Must specify a directory where blogs are stored")
+		log.Error("Must specify a directory where blogs are stored")
 	}
 
 	blogs = blog.New()
@@ -35,15 +35,15 @@ func main() {
 
 	err = blogReader.ReadBlogs()
 	if err != nil {
-		l4g.Error("Error creating blog reader: %s", err)
+		log.Error("Error creating blog reader: %s", err)
 	}
 
 	http.Handle("/", router)
 	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
 	err = http.ListenAndServe(":"+*protocol, nil)
 	if err != nil {
-		l4g.Error("Problem with http server: %s", err)
+		log.Error("Problem with http server: %s", err)
 	}
 
-	l4g.Trace("Stopping")
+	log.Trace("Stopping")
 }
