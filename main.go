@@ -13,14 +13,11 @@ import (
 var (
 	blog_dir = flag.String("b", "", "directory where blogs a stored")
 	protocol = flag.String("p", "2001", "protocal to run on")
+	log = l4g.NewDefaultLogger(l4g.WARNING)
 )
 
 func main() {
-	var err error
-
-	log := l4g.NewDefaultLogger(l4g.WARNING)
 	log.Trace("Starting")
-
 	flag.Parse()
 
 	if *blog_dir == "" {
@@ -32,7 +29,7 @@ func main() {
 	v := view.New(blogs, log)
 	router := router.New(v, log)
 
-	err = blogReader.ReadBlogs()
+	err := blogReader.ReadBlogs()
 	if err != nil {
 		log.Error("Error creating blog reader: %s", err)
 	}
