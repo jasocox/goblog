@@ -112,6 +112,21 @@ func Test_BlogRequiresTag(t *testing.T) {
 	}
 }
 
+func Test_CanHaveMiltiLines(t *testing.T) {
+	r := New(blog.New(), "dir", log)
+	blog, err := r.NewBlogFromFile("multiline_body.txt")
+
+	if err != nil {
+		t.Error("Unexpected error")
+		return
+	}
+
+	if !(blog.Intro == "The Intro, line 1\nThe Intro, line 2\nThe Intro, line 3") {
+		t.Error("Unexpected Intro:", blog.Intro)
+		return
+	}
+}
+
 func Test_CanAddAndGetBlogs(t *testing.T) {
 	blogs := blog.New()
 	reader := New(blogs, "dir", log)

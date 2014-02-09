@@ -123,7 +123,10 @@ func (r BlogReader) NewBlogFromFile(filename string) (b *blog.Blog, err error) {
 			if section == blog.SUBSECTION && subsection_header == "" {
 				subsection_header = line
 			} else {
-				body = line
+				if !(body == "") {
+					body += "\n"
+				}
+				body += line
 			}
 		}
 	}
