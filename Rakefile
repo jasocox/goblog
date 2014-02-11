@@ -10,6 +10,7 @@ end
 
 task :test do
   puts `go test reader/*.go`
+  puts `go test blog/*.go`
 end
 
 task :selenium do

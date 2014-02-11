@@ -3,7 +3,7 @@ package blog
 import "testing"
 
 func Test_AddABlog(t *testing.T) {
-	blogs = New()
+	blogs := New()
 
 	if len(blogs.Blogs()) != 0 {
 		t.Error("Shouldn't have any blogs yet")
@@ -41,7 +41,7 @@ func Test_AddABlog(t *testing.T) {
 }
 
 func Test_CanGetBlogs(t *testing.T) {
-	blogs := blog.New()
+	blogs := New()
 
 	blog1 := &Blog{Title: "Title 1"}
 	blog2 := &Blog{Title: "Title 2"}
@@ -51,32 +51,32 @@ func Test_CanGetBlogs(t *testing.T) {
 	blogs.Add(blog2)
 	blogs.Add(blog3)
 
-	if blogs.GetBlog("title_1") == nil {
+	if blogs.Get("title_1") == nil {
 		t.Error("Did not receive a blog")
 		return
 	}
 
-	if blogs.GetBlog("title_2") == nil {
+	if blogs.Get("title_2") == nil {
 		t.Error("Did not receive a blog")
 		return
 	}
 
-	if blogs.GetBlog("title_3") == nil {
+	if blogs.Get("title_3") == nil {
 		t.Error("Did not receive a blog")
 		return
 	}
 
-	if blogs.GetBlog("title_1") != blog1 {
+	if blogs.Get("title_1") != blog1 {
 		t.Error("Did not receive expected blog")
 		return
 	}
 
-	if blogs.GetBlog("title_2") != blog2 {
+	if blogs.Get("title_2") != blog2 {
 		t.Error("Did not receive expected blog")
 		return
 	}
 
-	if blogs.GetBlog("title_3") != blog3 {
+	if blogs.Get("title_3") != blog3 {
 		t.Error("Did not receive expected blog")
 		return
 	}
@@ -86,14 +86,14 @@ func Test_GetsNilIfDoesntExist(t *testing.T) {
 	blogs := New()
 	blogs.Add(&Blog{Title: "dont care"})
 
-	if blogs.GetBlog("title_1") != nil {
+	if blogs.Get("title_1") != nil {
 		t.Error("Expected nil for non-existant blog")
 		return
 	}
 }
 
 func Test_FirstGivesFirstThree(t *testing.T) {
-	blogs := blog.New()
+	blogs := New()
 
 	if len(blogs.First()) != 0 {
 		t.Error("Shouldn't have returned a blog")
