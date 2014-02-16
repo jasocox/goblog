@@ -1,16 +1,19 @@
 package blog
 
-import "testing"
+import (
+	"github.com/jasocox/goblog/blog"
+	"testing"
+)
 
 func Test_AddABlog(t *testing.T) {
-	blogs := New()
+	blogs := blog.New()
 
 	if len(blogs.Blogs()) != 0 {
 		t.Error("Shouldn't have any blogs yet")
 		return
 	}
 
-	blogs.Add(&Blog{Title: "Example 1", Intro: "Intro"})
+	blogs.Add(&blog.Blog{Title: "Example 1", Intro: "Intro"})
 
 	if len(blogs.Blogs()) != 1 {
 		t.Error("Should have a blog")
@@ -22,7 +25,7 @@ func Test_AddABlog(t *testing.T) {
 		return
 	}
 
-	blogs.Add(&Blog{Title: "Example 2", Intro: "Intro"})
+	blogs.Add(&blog.Blog{Title: "Example 2", Intro: "Intro"})
 
 	if len(blogs.Blogs()) != 2 {
 		t.Error("Should have two blogs")
@@ -41,11 +44,11 @@ func Test_AddABlog(t *testing.T) {
 }
 
 func Test_CanGetBlogs(t *testing.T) {
-	blogs := New()
+	blogs := blog.New()
 
-	blog1 := &Blog{Title: "Title 1"}
-	blog2 := &Blog{Title: "Title 2"}
-	blog3 := &Blog{Title: "Title 3"}
+	blog1 := &blog.Blog{Title: "Title 1"}
+	blog2 := &blog.Blog{Title: "Title 2"}
+	blog3 := &blog.Blog{Title: "Title 3"}
 
 	blogs.Add(blog1)
 	blogs.Add(blog2)
@@ -83,8 +86,8 @@ func Test_CanGetBlogs(t *testing.T) {
 }
 
 func Test_GetsNilIfDoesntExist(t *testing.T) {
-	blogs := New()
-	blogs.Add(&Blog{Title: "dont care"})
+	blogs := blog.New()
+	blogs.Add(&blog.Blog{Title: "dont care"})
 
 	if blogs.Get("title_1") != nil {
 		t.Error("Expected nil for non-existant blog")
@@ -93,14 +96,14 @@ func Test_GetsNilIfDoesntExist(t *testing.T) {
 }
 
 func Test_FirstGivesFirstThree(t *testing.T) {
-	blogs := New()
+	blogs := blog.New()
 
 	if len(blogs.First()) != 0 {
 		t.Error("Shouldn't have returned a blog")
 		return
 	}
 
-	blogs.Add(&Blog{Title: "one"})
+	blogs.Add(&blog.Blog{Title: "one"})
 
 	if len(blogs.First()) != 1 {
 		t.Error("Should have just one blog")
@@ -112,7 +115,7 @@ func Test_FirstGivesFirstThree(t *testing.T) {
 		return
 	}
 
-	blogs.Add(&Blog{Title: "two"})
+	blogs.Add(&blog.Blog{Title: "two"})
 
 	if len(blogs.First()) != 2 {
 		t.Error("Should have two blogs")
@@ -129,7 +132,7 @@ func Test_FirstGivesFirstThree(t *testing.T) {
 		return
 	}
 
-	blogs.Add(&Blog{Title: "three"})
+	blogs.Add(&blog.Blog{Title: "three"})
 
 	if len(blogs.First()) != 3 {
 		t.Error("Should have three blogs")
@@ -151,7 +154,7 @@ func Test_FirstGivesFirstThree(t *testing.T) {
 		return
 	}
 
-	blogs.Add(&Blog{Title: "four"})
+	blogs.Add(&blog.Blog{Title: "four"})
 
 	if len(blogs.First()) != 3 {
 		t.Error("Should have three blogs")
@@ -175,35 +178,35 @@ func Test_FirstGivesFirstThree(t *testing.T) {
 }
 
 func Test_LastSkipsFirstThree(t *testing.T) {
-	blogs := New()
+	blogs := blog.New()
 
 	if len(blogs.Last()) != 0 {
 		t.Error("Shouldn't have returned a blog")
 		return
 	}
 
-	blogs.Add(&Blog{Title: "one"})
+	blogs.Add(&blog.Blog{Title: "one"})
 
 	if len(blogs.Last()) != 0 {
 		t.Error("Shouldn't have returned a blog")
 		return
 	}
 
-	blogs.Add(&Blog{Title: "two"})
+	blogs.Add(&blog.Blog{Title: "two"})
 
 	if len(blogs.Last()) != 0 {
 		t.Error("Should have no blogs")
 		return
 	}
 
-	blogs.Add(&Blog{Title: "three"})
+	blogs.Add(&blog.Blog{Title: "three"})
 
 	if len(blogs.Last()) != 0 {
 		t.Error("Should have no blogs")
 		return
 	}
 
-	blogs.Add(&Blog{Title: "four"})
+	blogs.Add(&blog.Blog{Title: "four"})
 
 	if len(blogs.Last()) != 1 {
 		t.Error("Should have a blog")
@@ -215,7 +218,7 @@ func Test_LastSkipsFirstThree(t *testing.T) {
 		return
 	}
 
-	blogs.Add(&Blog{Title: "five"})
+	blogs.Add(&blog.Blog{Title: "five"})
 
 	if len(blogs.Last()) != 2 {
 		t.Error("Should have a blog")
