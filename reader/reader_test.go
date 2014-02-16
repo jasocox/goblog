@@ -3,6 +3,7 @@ package reader
 import (
 	l4g "code.google.com/p/log4go"
 	"github.com/jasocox/goblog/blog"
+	"github.com/jasocox/goblog/reader"
 	"testing"
 )
 
@@ -13,63 +14,64 @@ func init() {
 }
 
 func Test_MakeBlogWithFile(t *testing.T) {
-	r := New(blog.New(), "dir", log)
-	blog, err := r.NewBlogFromFile("example.txt")
+	b := blog.New()
+	r := reader.New(b, "dir", log)
+	err := r.NewBlogFromFile("example.txt")
 
 	if err != nil {
 		t.Error("Unexpected error parsing the blog file:", err.Error())
 		return
 	}
 
-	if !(blog.Title == "The Title") {
+	if !(b.Blogs()[0].Title == "The Title") {
 		t.Error("Did not set the proper title")
 		return
 	}
 
-	if !(blog.Intro == "The Intro") {
+	if !(b.Blogs()[0].Intro == "The Intro") {
 		t.Error("Did not set the proper intro")
 		return
 	}
 
-	if !(blog.Subsections[0].Header == "Sub Title 1") {
-		t.Error("Did not set the proper subtitle", blog.Subsections[0].Header)
+	if !(b.Blogs()[0].Subsections[0].Header == "Sub Title 1") {
+		t.Error("Did not set the proper subtitle", b.Blogs()[0].Subsections[0].Header)
 		return
 	}
 
-	if !(blog.Subsections[0].Text == "Sub Text 1") {
+	if !(b.Blogs()[0].Subsections[0].Text == "Sub Text 1") {
 		t.Error("Did not set the proper sub text")
 		return
 	}
 
-	if !(blog.Subsections[1].Header == "Sub Title 2") {
+	if !(b.Blogs()[0].Subsections[1].Header == "Sub Title 2") {
 		t.Error("Did not set the proper subtitle")
 		return
 	}
 
-	if !(blog.Subsections[1].Text == "Sub Text 2") {
+	if !(b.Blogs()[0].Subsections[1].Text == "Sub Text 2") {
 		t.Error("Did not set the proper sub text")
 		return
 	}
 
-	if !(blog.Outro == "The Outro") {
+	if !(b.Blogs()[0].Outro == "The Outro") {
 		t.Error("Did not set the proper outro")
 		return
 	}
 
-	if !(blog.Tags[0].Name == "Tag 1") {
+	if !(b.Blogs()[0].Tags[0].Name == "Tag 1") {
 		t.Error("Did not set the proper tag")
 		return
 	}
 
-	if !(blog.Tags[1].Name == "Tag 2") {
+	if !(b.Blogs()[0].Tags[1].Name == "Tag 2") {
 		t.Error("Did not set the proper tag")
 		return
 	}
 }
 
 func Test_BlogRequiresTitle(t *testing.T) {
-	r := New(blog.New(), "dir", log)
-	_, err := r.NewBlogFromFile("missing_title.txt")
+	r := reader.New(blog.New(), "dir", log)
+	err := r.NewBlogFromFile("missing_title.txt")
 
 	if err == nil {
 		t.Error("Expected error")
@@ -83,8 +85,8 @@ func Test_BlogRequiresTitle(t *testing.T) {
 }
 
 func Test_BlogRequiresIntro(t *testing.T) {
-	r := New(blog.New(), "dir", log)
-	_, err := r.NewBlogFromFile("missing_intro.txt")
+	r := reader.New(blog.New(), "dir", log)
+	err := r.NewBlogFromFile("missing_intro.txt")
 
 	if err == nil {
 		t.Error("Expected error")
@@ -98,8 +100,8 @@ func Test_BlogRequiresIntro(t *testing.T) {
 }
 
 func Test_BlogRequiresTag(t *testing.T) {
-	r := New(blog.New(), "dir", log)
-	_, err := r.NewBlogFromFile("missing_tag.txt")
+	r := reader.New(blog.New(), "dir", log)
+	err := r.NewBlogFromFile("missing_tag.txt")
 
 	if err == nil {
 		t.Error("Expected error")
@@ -113,43 +115,52 @@ func Test_BlogRequiresTag(t *testing.T) {
 }
 
 func Test_CanHaveMiltiLines(t *testing.T) {
-	r := New(blog.New(), "dir", log)
-	blog, err := r.NewBlogFromFile("multiline_body.txt")
+	b := blog.New()
+	r := reader.New(b, "dir", log)
+	err := r.NewBlogFromFile("multiline_body.txt")
 
 	if err != nil {
 		t.Error("Unexpected error")
 		return
 	}
 
-	if !(blog.Intro == "The Intro, line 1\nThe Intro, line 2\nThe Intro, line 3") {
-		t.Error("Unexpected Intro:", blog.Intro)
+	if !(b.Blogs()[0].Intro == "The Intro, line 1\nThe Intro, line 2\nThe Intro, line 3") {
+		t.Error("Unexpected Intro:", b.Blogs()[0].Intro)
 		return
 	}
 }
 
-func Test_CanAddAndGetBlogs(t *testing.T) {
+func Test_CanReadAndGetBlogs(t *testing.T) {
 	blogs := blog.New()
-	reader := New(blogs, "dir", log)
+	reader := reader.New(blogs, "../blogs", log)
 
-	blog1 := &blog.Blog{Title: "Title 1"}
-	blog2 := &blog.Blog{Title: "Title 2"}
-	blog3 := &blog.Blog{Title: "Title 3"}
+	reader.ReadBlogs()
+	blog1 := blogs.Get("example_1")
+	blog2 := blogs.Get("example_2")
+	blog3 := blogs.Get("example_3")
+	blog4 := blogs.Get("example_4")
 
-	reader.addBlog(blog1)
-	reader.addBlog(blog2)
-	reader.addBlog(blog3)
+	if blog1 == nil || blog2 == nil || blog3 == nil || blog4 == nil {
+		t.Error("Did not properly read blogs")
+		return
+	}
 
-	if blogs.Blogs()[0] != blog1 {
+	if blog1.Title != "Example 1" {
 		t.Error("Did not receive expected blog")
 		return
 	}
 
-	if blogs.Blogs()[1] != blog2 {
+	if blog2.Title != "Example 2" {
 		t.Error("Did not receive expected blog")
 		return
 	}
 
-	if blogs.Blogs()[2] != blog3 {
+	if blog3.Title != "Example 3" {
+		t.Error("Did not receive expected blog")
+		return
+	}
+
+	if blog4.Title != "Example 4" {
 		t.Error("Did not receive expected blog")
 		return
 	}

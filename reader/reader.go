@@ -54,7 +54,6 @@ func (r *BlogReader) ReadBlogs() error {
 
 	for _, filename := range file_list {
 		var (
-			blog     *blog.Blog
 			errr     error
 			filepath string
 		)
@@ -62,19 +61,27 @@ func (r *BlogReader) ReadBlogs() error {
 		filepath = r.blog_dir + "/" + filename
 		r.log.Trace("Reading blog file: %s", filepath)
 
-		blog, errr = r.NewBlogFromFile(filepath)
+		errr = r.NewBlogFromFile(filepath)
 		if errr != nil {
 			r.log.Error("Problems reading a blog file: %s", errr.Error())
 			err = errr
-		} else {
-			r.addBlog(blog)
 		}
 	}
 
 	return err
 }
 
-func (r BlogReader) NewBlogFromFile(filename string) (b *blog.Blog, err error) {
+func (r BlogReader) NewBlogFromFile(filename string) (err error) {
+	b, err := r.readBlog(filename)
+
+	if err == nil {
+		r.addBlog(b)
+	}
+
+	return
+}
+
+func (r BlogReader) readBlog(filename string) (b *blog.Blog, err error) {
 	var (
 		section           string
 		subsection_header string
