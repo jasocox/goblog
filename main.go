@@ -8,6 +8,8 @@ import (
 	"github.com/jasocox/goblog/router"
 	"github.com/jasocox/goblog/view"
 	"net/http"
+	"os"
+	"time"
 )
 
 var (
@@ -22,6 +24,8 @@ func main() {
 
 	if *blog_dir == "" {
 		log.Error("Must specify a directory where blogs are stored")
+		time.Sleep(1000)
+		os.Exit(1)
 	}
 
 	blogs := blog.New()
@@ -32,6 +36,8 @@ func main() {
 	err := blogReader.ReadBlogs()
 	if err != nil {
 		log.Error("Error creating blog reader: %s", err)
+		time.Sleep(1000)
+		os.Exit(1)
 	}
 
 	http.Handle("/", router)
@@ -39,6 +45,8 @@ func main() {
 	err = http.ListenAndServe(":"+*protocol, nil)
 	if err != nil {
 		log.Error("Problem with http server: %s", err)
+		time.Sleep(1000)
+		os.Exit(1)
 	}
 
 	log.Trace("Stopping")
