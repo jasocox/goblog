@@ -18,7 +18,8 @@ task :selenium do
   Dir.glob("tests/functional/*.rb").each do |file|
     puts `ruby #{file}`
   end
-  Process.kill 0, pid
+  Process.kill 9, pid
+  `kill #{`ps | grep blogs | grep -v 'grep' | grep 2002 | cut -d ' ' -f1`}`
 end
 
 task :fmt do
