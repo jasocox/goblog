@@ -48,14 +48,8 @@ func (v View) Blog(w http.ResponseWriter, blog_name string) (err error) {
 	v.log.Trace("Displaying blog: " + b.Title)
 
 	v.log.Trace("Rendering the blog")
-	err = templates.ExecuteTemplate(w, ablog, b)
+	v.execTemplate("Blog", templateExecer{ablog, b}, w)
 
-	if err != nil {
-		v.log.Error("Problems rendering template: " + err.Error())
-		fmt.Fprintln(w, "Nope! "+err.Error())
-	}
-
-	v.log.Trace("Done rendering")
 	return
 }
 
@@ -71,23 +65,15 @@ func (v View) BlogList(w http.ResponseWriter) error {
 	execers[2] = templateExecer{blog_links, v.blogs.Last()}
 	execers[3] = templateExecer{footer, nil}
 
-	return v.execTemplates("Blog List", execers, w)
+	return v.execTemplateList("Blog List", execers, w)
 }
 
-func (v View) Index(w http.ResponseWriter) (err error) {
-	v.log.Info("Index page")
-
-	err = templates.ExecuteTemplate(w, index, nil)
-
-	return
+func (v View) Index(w http.ResponseWriter) error {
+	return v.execTemplate("Index Page", templateExecer{index, nil}, w)
 }
 
-func (v View) Soon(w http.ResponseWriter) (err error) {
-	v.log.Info("Coming soon page")
-
-	err = templates.ExecuteTemplate(w, soon, nil)
-
-	return
+func (v View) Soon(w http.ResponseWriter) error {
+	return v.execTemplate("Coming Soon", templateExecer{soon, nil}, w)
 }
 
 type templateExecer struct {
@@ -111,7 +97,20 @@ func executeTemplates(execers []templateExecer, w http.ResponseWriter) (err erro
 	return
 }
 
-func (v View) execTemplates(name string, execers []templateExecer, w http.ResponseWriter) (err error) {
+func (v View) execTemplate(name string, execer templateExecer, w http.ResponseWriter) (err error) {
+	v.log.Info("%s page", name)
+
+	err = execer.executeTemplate(w)
+
+	if err != nil {
+		v.log.Error("Problems rendering template: " + err.Error())
+		fmt.Fprintln(w, "Nopes! "+err.Error())
+	}
+
+	return
+}
+
+func (v View) execTemplateList(name string, execers []templateExecer, w http.ResponseWriter) (err error) {
 	v.log.Info("%s page", name)
 
 	err = executeTemplates(execers, w)
