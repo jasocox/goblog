@@ -76,6 +76,31 @@ func (v View) Soon(w http.ResponseWriter) error {
 	return v.execTemplate("Coming Soon", templateExecer{soon, nil}, w)
 }
 
+func (v View) execTemplate(name string, execer templateExecer, w http.ResponseWriter) error {
+	return v.doExecTemplate(name, w, func() error {
+		return execer.executeTemplate(w)
+	})
+}
+
+func (v View) execTemplateList(name string, execers []templateExecer, w http.ResponseWriter) error {
+	return v.doExecTemplate(name, w, func() error {
+		return executeTemplates(execers, w)
+	})
+}
+
+func (v View) doExecTemplate(name string, w http.ResponseWriter, exec func() error) (err error) {
+	v.log.Info("%s page", name)
+
+	err = exec()
+
+	if err != nil {
+		v.log.Error("Problems rendering template: " + err.Error())
+		fmt.Fprintln(w, "Nopes! "+err.Error())
+	}
+
+	return
+}
+
 type templateExecer struct {
 	name string
 	data interface{}
@@ -92,32 +117,6 @@ func executeTemplates(execers []templateExecer, w http.ResponseWriter) (err erro
 		if err != nil {
 			break
 		}
-	}
-
-	return
-}
-
-func (v View) execTemplate(name string, execer templateExecer, w http.ResponseWriter) (err error) {
-	v.log.Info("%s page", name)
-
-	err = execer.executeTemplate(w)
-
-	if err != nil {
-		v.log.Error("Problems rendering template: " + err.Error())
-		fmt.Fprintln(w, "Nopes! "+err.Error())
-	}
-
-	return
-}
-
-func (v View) execTemplateList(name string, execers []templateExecer, w http.ResponseWriter) (err error) {
-	v.log.Info("%s page", name)
-
-	err = executeTemplates(execers, w)
-
-	if err != nil {
-		v.log.Error("Problems rendering template: " + err.Error())
-		fmt.Fprintln(w, "Nopes! "+err.Error())
 	}
 
 	return
