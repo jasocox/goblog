@@ -91,32 +91,19 @@ func (v View) execTemplateList(name string, execers []templateExecer, w http.Res
 func (v View) doExecTemplate(name string, w http.ResponseWriter, exec func() error) (err error) {
 	v.log.Info("%s page", name)
 
-	err = exec()
+	err = execHeader.executeTemplate(w)
+
+	if err == nil {
+		err = exec()
+	}
+
+	if err == nil {
+		err = execFooter.executeTemplate(w)
+	}
 
 	if err != nil {
 		v.log.Error("Problems rendering template: " + err.Error())
 		fmt.Fprintln(w, "Nopes! "+err.Error())
-	}
-
-	return
-}
-
-type templateExecer struct {
-	name string
-	data interface{}
-}
-
-func (e templateExecer) executeTemplate(w http.ResponseWriter) error {
-	return templates.ExecuteTemplate(w, e.name, e.data)
-}
-
-func executeTemplates(execers []templateExecer, w http.ResponseWriter) (err error) {
-	for _, e := range execers {
-		err = e.executeTemplate(w)
-
-		if err != nil {
-			break
-		}
 	}
 
 	return
