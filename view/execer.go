@@ -27,3 +27,17 @@ func executeTemplates(execers []templateExecer, w http.ResponseWriter) (err erro
 
 	return
 }
+
+func execLayout(w http.ResponseWriter, exec func() error) (err error) {
+	err = execHeader.executeTemplate(w)
+
+	if err == nil {
+		err = exec()
+	}
+
+	if err == nil {
+		err = execFooter.executeTemplate(w)
+	}
+
+	return
+}
